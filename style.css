@@ -58,3 +58,7 @@ html, body {
   font-size: 14px;
   pointer-events: auto;
 }
+
+h1 {
+  text-align: center;
+}
