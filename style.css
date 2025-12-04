@@ -2,20 +2,52 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  font-family: sans-serif;
+  text-align: center;
 }
 
 .top-section {
   background-color: #3498db; /* blue */
-  height: 50%; /* top half */
+  height: 40%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  color: white;
+  padding: 10px;
 }
 
 .bottom-section {
   background-color: #bdc3c7; /* gray */
-  height: 50%; /* bottom half */
+  height: 40%;
   display: flex;
   justify-content: center;
   align-items: center;
+  color: black;
+  padding: 10px;
+}
+
+.center-section {
+  position: relative;
+  height: 20%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.red-button {
+  width: 100px; /* adjust size */
+  height: 100px;
+  cursor: pointer;
+}
+
+.no-button {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
 }
