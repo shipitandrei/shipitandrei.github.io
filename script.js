@@ -1,3 +1,4 @@
+/*
 window.onload = function() {
   const span = document.getElementById("visits");
 
@@ -19,3 +20,4 @@ window.onload = function() {
       span.textContent = visits;
     });
 };
+*/
