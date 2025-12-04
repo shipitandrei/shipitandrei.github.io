@@ -4,50 +4,52 @@ html, body {
   padding: 0;
   font-family: sans-serif;
   text-align: center;
+  position: relative;
 }
 
 .top-section {
   background-color: #3498db; /* blue */
-  height: 40%;
+  height: 50%;
+  color: white;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  color: white;
-  padding: 10px;
+  padding-top: 20px;
 }
 
 .bottom-section {
   background-color: #bdc3c7; /* gray */
-  height: 40%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 50%;
   color: black;
-  padding: 10px;
-}
-
-.center-section {
-  position: relative;
-  height: 20%;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
+  flex-direction: column;
+  padding-bottom: 20px;
 }
 
 .red-button {
-  width: 100px; /* adjust size */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
   height: 100px;
   cursor: pointer;
+  z-index: 2;
 }
 
 .no-button {
-  margin-top: 10px;
+  position: absolute;
+  top: 60%; /* slightly below red button */
+  left: 50%;
+  transform: translateX(-50%);
   background: none;
   border: none;
   color: blue;
   text-decoration: underline;
   cursor: pointer;
   font-size: 14px;
+  z-index: 2;
 }
