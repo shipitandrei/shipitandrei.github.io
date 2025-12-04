@@ -1,1 +1,21 @@
-/* nothing */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.top-section {
+  background-color: #3498db; /* blue */
+  height: 50%; /* top half */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bottom-section {
+  background-color: #bdc3c7; /* gray */
+  height: 50%; /* bottom half */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
