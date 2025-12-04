@@ -3,8 +3,10 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  position: relative;
 }
 
+/* Top and bottom sections fill half screen each */
 .top-section, .bottom-section {
   height: 50%;
   display: flex;
@@ -13,21 +15,23 @@ html, body {
 }
 
 .top-section {
-  background-color: #3498db;
+  background-color: #3498db; /* blue */
 }
 
 .bottom-section {
-  background-color: #bdc3c7;
+  background-color: #bdc3c7; /* gray */
 }
 
-/* Heading fixed at top with padding */
+/* Heading at the top with padding */
 .top-section h1 {
   margin: 20px 0 0 0;
   text-align: center;
   width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
-/* Good and bad thing containers flex to fill remaining space and center content */
+/* Good thing container vertically centered with slight nudge up */
 .good-container {
   flex: 1;
   display: flex;
@@ -36,8 +40,10 @@ html, body {
   width: 100%;
   padding: 0 20px;
   text-align: center;
+  margin-top: -10px; /* move slightly up */
 }
 
+/* Bad thing container vertically centered in gray section */
 .bad-container {
   flex: 1;
   display: flex;
@@ -48,6 +54,7 @@ html, body {
   text-align: center;
 }
 
+/* Button container overlaid between sections */
 .button-container {
   position: absolute;
   top: 50%;
@@ -56,9 +63,10 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  pointer-events: none;
+  pointer-events: none; /* container ignores clicks */
 }
 
+/* Red button */
 .red-button {
   width: 120px;
   height: 120px;
@@ -67,6 +75,7 @@ html, body {
   margin-bottom: 10px;
 }
 
+/* "I don't press the button" link */
 .no-button {
   background: none;
   border: none;
@@ -75,12 +84,4 @@ html, body {
   cursor: pointer;
   font-size: 14px;
   pointer-events: auto;
-}
-
-.top-section h1 {
-  margin: 20px 0 0 0;  /* top margin */
-  text-align: center;   /* center horizontally */
-  width: 100%;
-  padding: 0 20px;     /* add horizontal padding from screen edges */
-  box-sizing: border-box; /* ensure padding doesn’t expand width */
 }
