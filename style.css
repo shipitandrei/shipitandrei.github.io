@@ -76,3 +76,11 @@ html, body {
   font-size: 14px;
   pointer-events: auto;
 }
+
+.top-section h1 {
+  margin: 20px 0 0 0;  /* top margin */
+  text-align: center;   /* center horizontally */
+  width: 100%;
+  padding: 0 20px;     /* add horizontal padding from screen edges */
+  box-sizing: border-box; /* ensure padding doesn’t expand width */
+}
