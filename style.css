@@ -60,8 +60,8 @@ html, body {
 }
 
 .red-button {
-  width: 100px;
-  height: 100px;
+  width: 300px;
+  height: 300px;
   cursor: pointer;
   pointer-events: auto;
   margin-bottom: 10px;
