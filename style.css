@@ -68,8 +68,8 @@ html, body {
 
 /* Red button */
 .red-button {
-  width: 120px;
-  height: 120px;
+  width: 350px !important;
+  height: 350px !important;
   cursor: pointer;
   pointer-events: auto;
   margin-bottom: 10px;
