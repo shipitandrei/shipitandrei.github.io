@@ -5,15 +5,13 @@ const iosHint = document.getElementById('iosHint');
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
+  installButton.style.display = 'block';
 
-  if (/Mobi|Android/i.test(navigator.userAgent)) {
-    installButton.style.display = 'block';
-    installButton.addEventListener('click', async () => {
-      installButton.style.display = 'none';
-      deferredPrompt.prompt();
-      deferredPrompt = null;
-    });
-  }
+  installButton.addEventListener('click', async () => {
+    installButton.style.display = 'none';
+    deferredPrompt.prompt();
+    deferredPrompt = null;
+  });
 });
 
 // iOS hint
