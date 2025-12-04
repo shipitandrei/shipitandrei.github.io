@@ -21,24 +21,35 @@ window.onload = function() {
     });
 };
 */
-   let deferredPrompt;
+// Elements on your page
+const installButton = document.getElementById('installButton');
+const iosHint = document.getElementById('iosHint');
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      // Prevent automatic prompt
-      e.preventDefault();
-      deferredPrompt = e;
+let deferredPrompt;
 
-      // Only show button if on mobile
-      if (/Mobi|Android/i.test(navigator.userAgent)) {
-        const btn = document.getElementById('installButton');
-        btn.style.display = 'block';
+// --- Android / Chrome install ---
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault(); // Prevent automatic prompt
+  deferredPrompt = e;
 
-        btn.addEventListener('click', async () => {
-          btn.style.display = 'none'; // hide button after click
-          deferredPrompt.prompt();    // show browser install prompt
-          const { outcome } = await deferredPrompt.userChoice;
-          console.log(`User response: ${outcome}`);
-          deferredPrompt = null;
-        });
-      }
+  if (/Mobi|Android/i.test(navigator.userAgent)) {
+    if (installButton) installButton.style.display = 'block';
+
+    installButton.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      installButton.style.display = 'none';
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response: ${outcome}`);
+      deferredPrompt = null;
     });
+  }
+});
+
+// --- iOS hint ---
+const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+const isInStandaloneMode = ('standalone' in window.navigator) && window.navigator.standalone;
+
+if (isIos && !isInStandaloneMode) {
+  if (iosHint) iosHint.style.display = 'block';
+}
