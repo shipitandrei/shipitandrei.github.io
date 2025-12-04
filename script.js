@@ -21,3 +21,24 @@ window.onload = function() {
     });
 };
 */
+   let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent automatic prompt
+      e.preventDefault();
+      deferredPrompt = e;
+
+      // Only show button if on mobile
+      if (/Mobi|Android/i.test(navigator.userAgent)) {
+        const btn = document.getElementById('installButton');
+        btn.style.display = 'block';
+
+        btn.addEventListener('click', async () => {
+          btn.style.display = 'none'; // hide button after click
+          deferredPrompt.prompt();    // show browser install prompt
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log(`User response: ${outcome}`);
+          deferredPrompt = null;
+        });
+      }
+    });
