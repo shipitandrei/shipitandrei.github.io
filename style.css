@@ -13,22 +13,36 @@ html, body {
 }
 
 .top-section {
-  background-color: #3498db; /* blue */
+  background-color: #3498db;
 }
 
 .bottom-section {
-  background-color: #bdc3c7; /* gray */
+  background-color: #bdc3c7;
 }
 
+/* Heading fixed at top with padding */
 .top-section h1 {
   margin: 20px 0 0 0;
+  text-align: center;
+  width: 100%;
 }
 
-.good-container, .bad-container {
+/* Good and bad thing containers flex to fill remaining space and center content */
+.good-container {
   flex: 1;
   display: flex;
-  justify-content: center; /* horizontal centering */
-  align-items: center;     /* vertical centering */
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.bad-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   padding: 0 20px;
   text-align: center;
@@ -42,7 +56,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  pointer-events: none; /* container itself ignores clicks */
+  pointer-events: none;
 }
 
 .red-button {
