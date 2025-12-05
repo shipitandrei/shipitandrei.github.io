@@ -26,7 +26,7 @@ let pressedCount = 0;
 let notPressedCount = 0;
 
 // =========================
-// QUESTIONS (50 placeholders, easy to edit)
+// QUESTIONS (50 editable placeholders)
 // =========================
 const questions = [
   {good:"1 good", bad:"1 bad", yes:"1 yes", no:"1 no"},
@@ -81,29 +81,45 @@ const questions = [
   {good:"50 good", bad:"50 bad", yes:"50 yes", no:"50 no"},
 ];
 
-// Copy for random selection
+// =========================
+// RANDOM SELECTION
+// =========================
 let questionPool = shuffleArray([...questions]);
 
-// =========================
-// HELPERS
-// =========================
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
 function getNextQuestion() {
   if (questionPool.length === 0) questionPool = shuffleArray([...questions]);
   return questionPool.pop();
 }
 
+// =========================
+// FADE HELPERS
+// =========================
 function fadeOutElements(elements) {
   return new Promise(resolve => {
-    elements.forEach(el => el.style.transition = `opacity ${fadeDuration}ms`);
-    elements.forEach(el => el.style.opacity = 0);
+    elements.forEach(el => {
+      el.style.transition = `opacity ${fadeDuration}ms`;
+      el.style.opacity = 0;
+      el.style.pointerEvents = "none";
+    });
     setTimeout(resolve, fadeDuration);
   });
 }
 
 function fadeInElements(elements) {
   return new Promise(resolve => {
-    elements.forEach(el => el.style.transition = `opacity ${fadeDuration}ms`);
-    elements.forEach(el => el.style.opacity = 1);
+    elements.forEach(el => {
+      el.style.transition = `opacity ${fadeDuration}ms`;
+      el.style.opacity = 1;
+      el.style.pointerEvents = "auto";
+    });
     setTimeout(resolve, fadeDuration);
   });
 }
@@ -115,6 +131,7 @@ let currentQuestion = getNextQuestion();
 
 function loadRound() {
   currentQuestion = getNextQuestion();
+
   goodText.textContent = currentQuestion.good;
   badText.textContent = "But " + currentQuestion.bad;
 
@@ -149,6 +166,7 @@ async function handlePress(pressed) {
   titleText.style.left = "50%";
   titleText.style.transform = "translate(-50%, -50%)";
   titleText.style.textAlign = "center";
+
   await fadeInElements([titleText]);
 
   setTimeout(async () => {
@@ -210,5 +228,10 @@ async function resetGame() {
 redBtn.onclick = () => handlePress(true);
 noBtn.onclick = () => handlePress(false);
 
-gameElements.forEach(el => el.style.opacity = 1);
+// Ensure visible
+gameElements.forEach(el => {
+  el.style.opacity = 1;
+  el.style.pointerEvents = "auto";
+});
+
 loadRound();
