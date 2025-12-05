@@ -1,6 +1,6 @@
 {
-  "name": "games PWA",
-  "short_name": "games",
+  "name": "Would You Press The Button?",
+  "short_name": "Button",
   "start_url": "app.html",
   "display": "standalone",
   "background_color": "#ffffff",
