@@ -13,7 +13,7 @@
     "form_factor": "narrow",
     "label": "Completion screen"
   }
-]
+],
   "start_url": "app.html",
   "display": "standalone",
   "background_color": "#BDC3C7",
