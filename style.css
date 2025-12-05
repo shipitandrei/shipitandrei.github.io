@@ -85,3 +85,12 @@ html, body {
   font-size: 14px;
   pointer-events: auto;
 }
+
+.fade {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.fade.show {
+  opacity: 1;
+}
