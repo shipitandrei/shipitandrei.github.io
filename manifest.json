@@ -1,6 +1,19 @@
 {
   "name": "Would You Press The Button?",
   "short_name": "Button",
+  "description": "Simple Would You Press The Button game made as a web app"
+  "screenshots": [
+  {
+    "src": "images/screenshot-button.png",
+    "form_factor": "narrow",
+    "label": "The game being played"
+  },
+  {
+    "src": "screenshots/dashboard.webp",
+    "form_factor": "narrow",
+    "label": "Completion screen"
+  }
+]
   "start_url": "app.html",
   "display": "standalone",
   "background_color": "#BDC3C7",
