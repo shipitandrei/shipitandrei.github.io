@@ -21,16 +21,16 @@ let pressedCount = 0;
 let notPressedCount = 0;
 
 const rounds = [
-  { good: "You get $1,000 instantly!", bad: "You must shout in public." },
-  { good: "Free pizza for life!", bad: "You can never eat burgers again." },
-  { good: "Unlimited WiFi anywhere.", bad: "Battery always stuck at 10%." },
-  { good: "You gain super strength.", bad: "You lose 1 hour of sleep daily." },
-  { good: "Instantly finish all homework.", bad: "Teacher gives a random quiz." },
-  { good: "You become a genius.", bad: "Everyone thinks you’re weird." },
-  { good: "You get a new phone.", bad: "Your old one explodes." },
-  { good: "You can fly!", bad: "Only 1 meter above the ground." },
-  { good: "Become famous.", bad: "Paparazzi follow you everywhere." },
-  { good: "Unlimited games.", bad: "No save files allowed." }
+  { good: "You get $1,000 instantly!", bad: "you must shout in public." },
+  { good: "Free pizza for life!", bad: "you can never eat burgers again." },
+  { good: "Unlimited WiFi anywhere.", bad: "your battery is always stuck at 10%." },
+  { good: "You gain super strength.", bad: "you lose 1 hour of sleep daily." },
+  { good: "Instantly finish all homework.", bad: "teacher gives a random quiz." },
+  { good: "You become a genius.", bad: "everyone thinks you’re weird." },
+  { good: "You get a new phone.", bad: "your old one explodes." },
+  { good: "You can fly!", bad: "only 1 meter above the ground." },
+  { good: "Become famous.", bad: "paparazzi follow you everywhere." },
+  { good: "Unlimited games.", bad: "no save files allowed." }
 ];
 
 // =========================
@@ -117,7 +117,7 @@ function randomMessage(pressed) {
 function loadRound() {
   const data = rounds[currentRound - 1];
   goodText.textContent = data.good;
-  badText.textContent = "But" + data.bad;
+  badText.textContent = "But " + data.bad;
   titleText.textContent = "Would You Press The Button?";
 }
 
