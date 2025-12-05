@@ -1,4 +1,6 @@
-// -------------- RANDOM LISTS --------------
+// ---------------------------
+// Random lists
+// ---------------------------
 const goodThings = [
   "You get $1,000 instantly!",
   "You gain a superpower!",
@@ -7,10 +9,10 @@ const goodThings = [
 ];
 
 const badThings = [
-  "You must shout in public!",
-  "You lose your favorite item!",
-  "You have to clean your room!",
-  "You can never eat chocolate again!"
+  "You must shout in public.",
+  "You lose your favorite item.",
+  "You have to clean your room.",
+  "You can never eat chocolate again."
 ];
 
 const redResponses = [
@@ -25,53 +27,69 @@ const noResponses = [
   "I probably would've pressed it."
 ];
 
-function pick(list) {
-  return list[Math.floor(Math.random() * list.length)];
+// Helper: pick random
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// -------------- GET ELEMENTS SAFELY --------------
-const redBtn = document.getElementById("redBtn");
-const noBtn  = document.getElementById("noBtn");
+// ---------------------------
+// Grab elements
+// ---------------------------
+const titleText = document.getElementById("titleText");
 const goodText = document.getElementById("goodText");
 const badText = document.getElementById("badText");
-const titleText = document.getElementById("titleText");
+const redBtn = document.getElementById("redBtn");
+const noBtn = document.getElementById("noBtn");
 
-// If ANY of these are missing, show a helpful error.
-if (!redBtn || !noBtn || !goodText || !badText || !titleText) {
-  console.error("❌ Missing HTML IDs. Make sure your HTML matches the required IDs.");
+// Safety check
+if (!titleText || !goodText || !badText || !redBtn || !noBtn) {
+  console.error("❌ One or more required IDs are missing from the HTML.");
 }
 
-// -------------- HIDE ALL GAME ELEMENTS --------------
+// ---------------------------
+// Hide all main elements
+// ---------------------------
 function hideGame() {
-  redBtn.style.display = "none";
-  noBtn.style.display = "none";
+  titleText.style.display = "none";
   goodText.style.display = "none";
   badText.style.display = "none";
-  titleText.style.display = "none";
+  redBtn.style.display = "none";
+  noBtn.style.display = "none";
 }
 
-// -------------- SHOW RESPONSE MESSAGE CENTERED --------------
+// ---------------------------
+// Show response in center
+// ---------------------------
 function showMessage(msg) {
   const box = document.createElement("div");
   box.textContent = msg;
+
   box.style.position = "absolute";
   box.style.top = "50%";
   box.style.left = "50%";
   box.style.transform = "translate(-50%, -50%)";
-  box.style.fontSize = "24px";
+  box.style.fontSize = "26px";
   box.style.fontWeight = "bold";
   box.style.color = "white";
   box.style.textAlign = "center";
+  box.style.maxWidth = "80%";
+
   document.body.appendChild(box);
 }
 
-// -------------- BUTTON HANDLERS --------------
+// ---------------------------
+// Button click events
+// ---------------------------
 redBtn.addEventListener("click", () => {
+  // Update text for the next round (even though it hides after)
+  goodText.textContent = "Good thing: " + pick(goodThings);
+  badText.textContent = "Bad thing: " + pick(badThings);
+
   hideGame();
-  showMessage( pick(redResponses) );
+  showMessage(pick(redResponses));
 });
 
 noBtn.addEventListener("click", () => {
   hideGame();
-  showMessage( pick(noResponses) );
+  showMessage(pick(noResponses));
 });
