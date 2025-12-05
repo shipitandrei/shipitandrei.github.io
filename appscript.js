@@ -162,7 +162,7 @@ async function handlePress(pressed) {
 
   titleText.textContent = pressed ? currentQuestion.yes : currentQuestion.no;
   titleText.style.position = "absolute";
-  titleText.style.top = "45%";
+  titleText.style.top = "47%";
   titleText.style.left = "50%";
   titleText.style.transform = "translate(-50%, -50%)";
   titleText.style.textAlign = "center";
