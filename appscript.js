@@ -1,4 +1,4 @@
-// Arrays of good/bad things
+// -------------- RANDOM LISTS --------------
 const goodThings = [
   "You get $1,000 instantly!",
   "You gain a superpower!",
@@ -13,68 +13,65 @@ const badThings = [
   "You can never eat chocolate again!"
 ];
 
-// Response messages for each button
-const redButtonResponses = [
-  "I would have picked that too!",
-  "Bold choice! Well done!",
-  "You took the risk and I respect that!"
+const redResponses = [
+  "I would've picked that too!",
+  "Bold choice!",
+  "Respect. You took the risk!"
 ];
 
-const noButtonResponses = [
-  "If I were you, I really would have pressed that button.",
-  "Playing it safe is wise!",
-  "You avoided disaster... maybe!"
+const noResponses = [
+  "Playing it safe, I see.",
+  "Interesting choice...",
+  "I probably would've pressed it."
 ];
 
-// Grab elements
-const redButton = document.querySelector('.red-button');
-const noButton = document.querySelector('.no-button');
-const heading = document.querySelector('.top-section h1');
-const goodText = document.querySelector('.good-thing');
-const badText = document.querySelector('.bad-thing');
-
-// Function to pick random item from array
-function getRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function pick(list) {
+  return list[Math.floor(Math.random() * list.length)];
 }
 
-// Function to hide all game elements
-function hideGameElements() {
-  heading.style.display = 'none';
-  goodText.style.display = 'none';
-  badText.style.display = 'none';
-  redButton.style.display = 'none';
-  noButton.style.display = 'none';
+// -------------- GET ELEMENTS SAFELY --------------
+const redBtn = document.getElementById("redBtn");
+const noBtn  = document.getElementById("noBtn");
+const goodText = document.getElementById("goodText");
+const badText = document.getElementById("badText");
+const titleText = document.getElementById("titleText");
+
+// If ANY of these are missing, show a helpful error.
+if (!redBtn || !noBtn || !goodText || !badText || !titleText) {
+  console.error("❌ Missing HTML IDs. Make sure your HTML matches the required IDs.");
 }
 
-// Function to show response message
-function showResponse(message) {
-  const responseDiv = document.createElement('div');
-  responseDiv.textContent = message;
-  responseDiv.style.position = 'absolute';
-  responseDiv.style.top = '50%';
-  responseDiv.style.left = '50%';
-  responseDiv.style.transform = 'translate(-50%, -50%)';
-  responseDiv.style.fontSize = '24px';
-  responseDiv.style.color = '#fff';
-  responseDiv.style.textAlign = 'center';
-  responseDiv.style.padding = '20px';
-  responseDiv.style.pointerEvents = 'none';
-  document.body.appendChild(responseDiv);
+// -------------- HIDE ALL GAME ELEMENTS --------------
+function hideGame() {
+  redBtn.style.display = "none";
+  noBtn.style.display = "none";
+  goodText.style.display = "none";
+  badText.style.display = "none";
+  titleText.style.display = "none";
 }
 
-// Red button click
-redButton.addEventListener('click', () => {
-  goodText.textContent = "Good thing: " + getRandom(goodThings);
-  badText.textContent = "Bad thing: " + getRandom(badThings);
-  const responseMessage = getRandom(redButtonResponses);
-  hideGameElements();
-  showResponse(responseMessage);
+// -------------- SHOW RESPONSE MESSAGE CENTERED --------------
+function showMessage(msg) {
+  const box = document.createElement("div");
+  box.textContent = msg;
+  box.style.position = "absolute";
+  box.style.top = "50%";
+  box.style.left = "50%";
+  box.style.transform = "translate(-50%, -50%)";
+  box.style.fontSize = "24px";
+  box.style.fontWeight = "bold";
+  box.style.color = "white";
+  box.style.textAlign = "center";
+  document.body.appendChild(box);
+}
+
+// -------------- BUTTON HANDLERS --------------
+redBtn.addEventListener("click", () => {
+  hideGame();
+  showMessage( pick(redResponses) );
 });
 
-// "I don't press" button click
-noButton.addEventListener('click', () => {
-  const responseMessage = getRandom(noButtonResponses);
-  hideGameElements();
-  showResponse(responseMessage);
+noBtn.addEventListener("click", () => {
+  hideGame();
+  showMessage( pick(noResponses) );
 });
