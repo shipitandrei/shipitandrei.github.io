@@ -1,9 +1,9 @@
 // =========================
-// CONFIGURATION
+// CONFIG
 // =========================
 const totalRounds = 10;
-const fadeDuration = 400; // milliseconds
-const messageDelay = 1000; // time message stays visible
+const messageDelay = 1000; // 1 second
+const fadeDuration = 300;  // fade speed in ms
 
 // =========================
 // ELEMENTS
@@ -15,7 +15,7 @@ const redBtn = document.getElementById("redBtn");
 const noBtn = document.getElementById("noBtn");
 
 // =========================
-// DATA
+// GAME DATA
 // =========================
 let currentRound = 1;
 let pressedCount = 0;
@@ -34,20 +34,20 @@ const rounds = [
   { good: "Unlimited games.", bad: "No save files allowed." }
 ];
 
-const yesMessages = [
-  "I would have pressed it too!",
+const yesResponses = [
+  "I would have pressed that too!",
   "Bold choice! I like it.",
   "You made the right call!"
 ];
 
-const noMessages = [
+const noResponses = [
   "Fair choice, honestly.",
   "I get why you avoided it.",
   "Probably the smart move!"
 ];
 
 // =========================
-// UTILS: FADE
+// FADE FUNCTIONS
 // =========================
 function fadeOut(el) {
   return new Promise(resolve => {
@@ -66,42 +66,21 @@ function fadeIn(el) {
 }
 
 // =========================
-// GAME VISIBILITY
+// SHOW/HIDE GAME
 // =========================
 function hideGame() {
   goodText.style.visibility = "hidden";
   badText.style.visibility = "hidden";
   redBtn.style.visibility = "hidden";
   noBtn.style.visibility = "hidden";
-
-  titleText.style.position = "absolute";
-  titleText.style.top = "50%";
-  titleText.style.left = "50%";
-  titleText.style.transform = "translate(-50%, -50%)";
-  titleText.style.width = "80%";
-  titleText.style.textAlign = "center";
 }
 
 function showGame() {
-  titleText.style.position = "";
-  titleText.style.top = "";
-  titleText.style.left = "";
-  titleText.style.transform = "";
-  titleText.style.width = "";
-  titleText.style.textAlign = "";
-
   goodText.style.visibility = "visible";
   badText.style.visibility = "visible";
   redBtn.style.visibility = "visible";
   noBtn.style.visibility = "visible";
-}
-
-// =========================
-// RANDOM MESSAGE
-// =========================
-function randomMessage(pressed) {
-  const arr = pressed ? yesMessages : noMessages;
-  return arr[Math.floor(Math.random() * arr.length)];
+  titleText.textContent = "Would You Press The Button?";
 }
 
 // =========================
@@ -111,23 +90,59 @@ function loadRound() {
   const data = rounds[currentRound - 1];
   goodText.textContent = "Good thing: " + data.good;
   badText.textContent = "Bad thing: " + data.bad;
-  titleText.textContent = "Would You Press The Button?";
 }
 
 // =========================
-// NEXT ROUND
+// BUTTON RESPONSES
 // =========================
-async function nextRound() {
-  currentRound++;
+async function handlePress(pressed) {
+  // Count
+  if (pressed) pressedCount++;
+  else notPressedCount++;
 
-  if (currentRound > totalRounds) {
-    await showEndScreen();
-    return;
-  }
+  // Hide game
+  await fadeOut(goodText);
+  await fadeOut(badText);
+  await fadeOut(redBtn);
+  await fadeOut(noBtn);
 
-  showGame();
-  loadRound();
+  hideGame();
+
+  // Show custom response centered
+  const message = pressed
+    ? yesResponses[Math.floor(Math.random() * yesResponses.length)]
+    : noResponses[Math.floor(Math.random() * noResponses.length)];
+
+  titleText.style.position = "absolute";
+  titleText.style.top = "50%";
+  titleText.style.left = "50%";
+  titleText.style.transform = "translate(-50%, -50%)";
+  titleText.style.textAlign = "center";
+  titleText.textContent = message;
+
   await fadeIn(titleText);
+
+  // Next round after delay
+  setTimeout(async () => {
+    currentRound++;
+    if (currentRound > totalRounds) {
+      showEndScreen();
+    } else {
+      // Reset title
+      titleText.style.position = "";
+      titleText.style.top = "";
+      titleText.style.left = "";
+      titleText.style.transform = "";
+      titleText.style.textAlign = "";
+
+      showGame();
+      loadRound();
+      await fadeIn(goodText);
+      await fadeIn(badText);
+      await fadeIn(redBtn);
+      await fadeIn(noBtn);
+    }
+  }, messageDelay);
 }
 
 // =========================
@@ -136,6 +151,12 @@ async function nextRound() {
 async function showEndScreen() {
   hideGame();
   await fadeOut(titleText);
+
+  titleText.style.position = "absolute";
+  titleText.style.top = "50%";
+  titleText.style.left = "50%";
+  titleText.style.transform = "translate(-50%, -50%)";
+  titleText.style.textAlign = "center";
 
   titleText.innerHTML =
     `You pressed the button <b>${pressedCount}</b> times.<br>` +
@@ -155,32 +176,26 @@ async function resetGame() {
   pressedCount = 0;
   notPressedCount = 0;
 
+  titleText.style.position = "";
+  titleText.style.top = "";
+  titleText.style.left = "";
+  titleText.style.transform = "";
+  titleText.style.textAlign = "center";
+
   showGame();
   loadRound();
-  await fadeIn(titleText);
+  await fadeIn(goodText);
+  await fadeIn(badText);
+  await fadeIn(redBtn);
+  await fadeIn(noBtn);
 }
-
-// =========================
-// BUTTON EVENTS
-// =========================
-redBtn.onclick = async () => {
-  pressedCount++;
-  hideGame();
-  titleText.textContent = randomMessage(true);
-  await fadeIn(titleText);
-  setTimeout(nextRound, messageDelay);
-};
-
-noBtn.onclick = async () => {
-  notPressedCount++;
-  hideGame();
-  titleText.textContent = randomMessage(false);
-  await fadeIn(titleText);
-  setTimeout(nextRound, messageDelay);
-};
 
 // =========================
 // INITIALIZE
 // =========================
-document.body.style.opacity = 1;
+redBtn.onclick = () => handlePress(true);
+noBtn.onclick = () => handlePress(false);
+
+// Initialize first round
 loadRound();
+document.body.style.opacity = 1;
