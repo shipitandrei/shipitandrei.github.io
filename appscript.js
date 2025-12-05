@@ -1,167 +1,133 @@
-// ---------------------------
-// Random lists
-// ---------------------------
+const roundsTotal = 10;
+let currentRound = 0;
+let pressedCount = 0;
+let notPressedCount = 0;
+
 const goodThings = [
   "You get $1,000 instantly!",
-  "You gain a superpower!",
-  "You get free pizza for a year!",
-  "You can skip homework today!"
+  "You can fly for 10 seconds every day!",
+  "You get unlimited pizza!",
+  "You never have homework again!",
+  "You become TikTok famous!",
+  "You wake up with perfect hair!",
+  "You ace every exam without studying!",
+  "You get a free puppy!",
+  "You can speak every language!",
+  "You get a new gaming PC!"
 ];
 
 const badThings = [
-  "You must shout in public.",
-  "You lose your favorite item.",
-  "You have to clean your room.",
-  "You can never eat chocolate again."
+  "But you must shout in public.",
+  "But you smell like onions for 1 hour.",
+  "But you lose your phone for a day.",
+  "But you have to eat a spoonful of mustard.",
+  "But you can only talk in whispers.",
+  "But you must wear socks on your hands.",
+  "But you get jumpscared once.",
+  "But you must run 1 lap around your house.",
+  "But you hiccup for 5 minutes.",
+  "But you sneeze 20 times."
 ];
 
-const redResponses = [
-  "I would've picked that too!",
-  "Bold choice!",
-  "Respect. You took the risk!"
-];
-
-const noResponses = [
-  "Playing it safe, I see.",
-  "Interesting choice...",
-  "I probably would've pressed it."
-];
-
-// Pick random item
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-// ---------------------------
-// Elements
-// ---------------------------
 const titleText = document.getElementById("titleText");
 const goodText = document.getElementById("goodText");
 const badText = document.getElementById("badText");
 const redBtn = document.getElementById("redBtn");
 const noBtn = document.getElementById("noBtn");
 
-// ---------------------------
-// Stats tracking
-// ---------------------------
-let rounds = 0;
-let pressed = 0;
-let notPressed = 0;
-
-let currentMessageBox = null;
-
-// ---------------------------
-// Hide UI
-// ---------------------------
 function hideGame() {
-  titleText.style.opacity = "0";
-  goodText.style.opacity = "0";
-  badText.style.opacity = "0";
-  redBtn.style.opacity = "0";
-  noBtn.style.opacity = "0";
+  goodText.style.display = "none";
+  badText.style.display = "none";
+  redBtn.style.display = "none";
+  noBtn.style.display = "none";
 }
 
-// ---------------------------
-// Show response message
-// ---------------------------
-function showMessage(msg) {
-  const box = document.createElement("div");
-  box.textContent = msg;
-
-  box.style.position = "absolute";
-  box.style.top = "50%";
-  box.style.left = "50%";
-  box.style.transform = "translate(-50%, -50%)";
-  box.style.fontSize = "26px";
-  box.style.fontWeight = "bold";
-  box.style.color = "white";
-  box.style.textAlign = "center";
-  box.style.maxWidth = "80%";
-  box.style.zIndex = "9999";
-
-  document.body.appendChild(box);
-  currentMessageBox = box;
+function showGame() {
+  goodText.style.display = "block";
+  badText.style.display = "block";
+  redBtn.style.display = "block";
+  noBtn.style.display = "block";
 }
 
-// ---------------------------
-// Reset UI for next round
-// ---------------------------
-function resetGame() {
-  if (currentMessageBox) {
-    currentMessageBox.remove();
-    currentMessageBox = null;
+function randomMessage(pressed) {
+  const pressedMsgs = [
+    "I would have pressed it too!",
+    "Brave choice!",
+    "Nice one!",
+    "Solid decision!",
+    "Fair enough!"
+  ];
+
+  const notPressedMsgs = [
+    "Honestly, same.",
+    "Probably the safe choice!",
+    "I get why you didn’t.",
+    "Reasonable decision!",
+    "Maybe next time!"
+  ];
+
+  return pressed
+    ? pressedMsgs[Math.floor(Math.random() * pressedMsgs.length)]
+    : notPressedMsgs[Math.floor(Math.random() * notPressedMsgs.length)];
+}
+
+function nextRound() {
+  if (currentRound >= roundsTotal) {
+    showEndScreen();
+    return;
   }
 
-  // Randomize next question
-  goodText.textContent = "Good thing: " + pick(goodThings);
-  badText.textContent = "Bad thing: " + pick(badThings);
+  currentRound++;
 
-  // Show everything again
-  titleText.style.opacity = "1";
-  goodText.style.opacity = "1";
-  badText.style.opacity = "1";
-  redBtn.style.opacity = "1";
-  noBtn.style.opacity = "1";
+  const i = Math.floor(Math.random() * goodThings.length);
+  goodText.textContent = "Good thing: " + goodThings[i];
+  badText.textContent = "Bad thing: " + badThings[i];
+
+  showGame();
+  titleText.textContent = "Would You Press The Button?";
 }
 
-// ---------------------------
-// Stats screen
-// ---------------------------
-function showStats() {
-  // Hide everything permanently
-  titleText.remove();
-  goodText.remove();
-  badText.remove();
-  redBtn.remove();
-  noBtn.remove();
-
-  if (currentMessageBox) currentMessageBox.remove();
-
-  const statsBox = document.createElement("div");
-  statsBox.innerHTML = `
-    <p style="font-size:28px;font-weight:bold;margin-bottom:20px;text-align:center;">
-      Your Results
-    </p>
-    <p style="font-size:22px;text-align:center;">You pressed the button <b>${pressed}</b> times.</p>
-    <p style="font-size:22px;text-align:center;">You didn’t press it <b>${notPressed}</b> times.</p>
-  `;
-
-  statsBox.style.position = "absolute";
-  statsBox.style.top = "50%";
-  statsBox.style.left = "50%";
-  statsBox.style.transform = "translate(-50%, -50%)";
-  statsBox.style.color = "white";
-  statsBox.style.textAlign = "center";
-  statsBox.style.maxWidth = "90%";
-  statsBox.style.zIndex = "9999";
-
-  document.body.appendChild(statsBox);
-}
-
-// ---------------------------
-// Button logic
-// ---------------------------
-function choose(responseList, type) {
-  rounds++;
-
-  if (type === "press") pressed++;
-  else notPressed++;
-
+function showEndScreen() {
   hideGame();
-  showMessage(pick(responseList));
 
-  // After 10 rounds → show stats instead of next round
-  if (rounds >= 10) {
-    setTimeout(showStats, 3500);
-  } else {
-    setTimeout(resetGame, 3500);
-  }
+  titleText.innerHTML =
+    `You pressed the button <b>${pressedCount}</b> times.<br>` +
+    `You didn't press the button <b>${notPressedCount}</b> times.<br><br>`;
+
+  const playAgainBtn = document.createElement("button");
+  playAgainBtn.textContent = "Play Again";
+  playAgainBtn.style.fontSize = "22px";
+  playAgainBtn.style.padding = "12px 20px";
+  playAgainBtn.style.marginTop = "20px";
+  playAgainBtn.style.cursor = "pointer";
+
+  playAgainBtn.onclick = resetGame;
+
+  titleText.appendChild(playAgainBtn);
 }
 
-redBtn.addEventListener("click", () => {
-  choose(redResponses, "press");
-});
+function resetGame() {
+  currentRound = 0;
+  pressedCount = 0;
+  notPressedCount = 0;
 
-noBtn.addEventListener("click", () => {
-  choose(noResponses, "no");
-});
+  nextRound();
+}
+
+redBtn.onclick = () => {
+  pressedCount++;
+  hideGame();
+  titleText.textContent = randomMessage(true);
+
+  setTimeout(nextRound, 1000);
+};
+
+noBtn.onclick = () => {
+  notPressedCount++;
+  hideGame();
+  titleText.textContent = randomMessage(false);
+
+  setTimeout(nextRound, 1000);
+};
+
+nextRound();
