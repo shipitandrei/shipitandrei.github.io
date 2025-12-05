@@ -9,12 +9,14 @@ const fadeDuration = 300;  // fade duration in ms
 // ELEMENTS
 // =========================
 const titleText = document.getElementById("titleText");
+const goodContainer = document.querySelector(".good-container");
+const badContainer = document.querySelector(".bad-container");
 const goodText = document.getElementById("goodText");
 const badText = document.getElementById("badText");
 const redBtn = document.getElementById("redBtn");
 const noBtn = document.getElementById("noBtn");
 
-const gameElements = [titleText, goodText, badText, redBtn, noBtn];
+const gameElements = [titleText, goodContainer, badContainer, redBtn, noBtn];
 
 // =========================
 // GAME DATA
@@ -147,14 +149,14 @@ function loadRound() {
   goodText.textContent = currentQuestion.good;
   badText.textContent = "But " + currentQuestion.bad; // "But" prefix
 
-  // Center good/bad texts in sections
-  [goodText, badText].forEach(el => {
-    el.style.position = "absolute";
-    el.style.top = "50%";
-    el.style.left = "50%";
-    el.style.transform = "translate(-50%, -50%)";
-    el.style.textAlign = "center";
-  });
+  // Use flexbox centering in containers (no overlap)
+  goodContainer.style.display = "flex";
+  goodContainer.style.alignItems = "center";
+  goodContainer.style.justifyContent = "center";
+
+  badContainer.style.display = "flex";
+  badContainer.style.alignItems = "center";
+  badContainer.style.justifyContent = "center";
 
   titleText.textContent = "Would You Press The Button?";
   resetTitlePosition();
