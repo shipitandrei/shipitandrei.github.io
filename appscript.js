@@ -162,7 +162,7 @@ async function handlePress(pressed) {
 
   titleText.textContent = pressed ? currentQuestion.yes : currentQuestion.no;
   titleText.style.position = "absolute";
-  titleText.style.top = "46.5%";
+  titleText.style.top = "46.1%";
   titleText.style.left = "50%";
   titleText.style.transform = "translate(-50%, -50%)";
   titleText.style.textAlign = "center";
@@ -193,7 +193,7 @@ async function showEndScreen() {
     `<button id="playAgainBtn">Play Again</button>`;
 
   titleText.style.position = "absolute";
-  titleText.style.top = "46.5%";
+  titleText.style.top = "46.1%";
   titleText.style.left = "50%";
   titleText.style.transform = "translate(-50%, -50%)";
   titleText.style.textAlign = "center";
