@@ -27,6 +27,7 @@ const noResponses = [
   "I probably would've pressed it."
 ];
 
+// Pick random item
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -41,21 +42,28 @@ const redBtn = document.getElementById("redBtn");
 const noBtn = document.getElementById("noBtn");
 
 // ---------------------------
+// Stats tracking
+// ---------------------------
+let rounds = 0;
+let pressed = 0;
+let notPressed = 0;
+
+let currentMessageBox = null;
+
+// ---------------------------
 // Hide UI
 // ---------------------------
 function hideGame() {
-  titleText.style.display = "none";
-  goodText.style.display = "none";
-  badText.style.display = "none";
-  redBtn.style.display = "none";
-  noBtn.style.display = "none";
+  titleText.style.opacity = "0";
+  goodText.style.opacity = "0";
+  badText.style.opacity = "0";
+  redBtn.style.opacity = "0";
+  noBtn.style.opacity = "0";
 }
 
 // ---------------------------
-// Show center message
+// Show response message
 // ---------------------------
-let currentMessageBox = null;
-
 function showMessage(msg) {
   const box = document.createElement("div");
   box.textContent = msg;
@@ -69,6 +77,7 @@ function showMessage(msg) {
   box.style.color = "white";
   box.style.textAlign = "center";
   box.style.maxWidth = "80%";
+  box.style.zIndex = "9999";
 
   document.body.appendChild(box);
   currentMessageBox = box;
@@ -78,39 +87,81 @@ function showMessage(msg) {
 // Reset UI for next round
 // ---------------------------
 function resetGame() {
-  // Remove old message
   if (currentMessageBox) {
     currentMessageBox.remove();
     currentMessageBox = null;
   }
 
-  // Pick NEW good/bad for the next round
+  // Randomize next question
   goodText.textContent = "Good thing: " + pick(goodThings);
   badText.textContent = "Bad thing: " + pick(badThings);
 
-  // Reveal UI again
-  titleText.style.display = "block";
-  goodText.style.display = "block";
-  badText.style.display = "block";
-  redBtn.style.display = "block";
-  noBtn.style.display = "block";
+  // Show everything again
+  titleText.style.opacity = "1";
+  goodText.style.opacity = "1";
+  badText.style.opacity = "1";
+  redBtn.style.opacity = "1";
+  noBtn.style.opacity = "1";
+}
+
+// ---------------------------
+// Stats screen
+// ---------------------------
+function showStats() {
+  // Hide everything permanently
+  titleText.remove();
+  goodText.remove();
+  badText.remove();
+  redBtn.remove();
+  noBtn.remove();
+
+  if (currentMessageBox) currentMessageBox.remove();
+
+  const statsBox = document.createElement("div");
+  statsBox.innerHTML = `
+    <p style="font-size:28px;font-weight:bold;margin-bottom:20px;text-align:center;">
+      Your Results
+    </p>
+    <p style="font-size:22px;text-align:center;">You pressed the button <b>${pressed}</b> times.</p>
+    <p style="font-size:22px;text-align:center;">You didn’t press it <b>${notPressed}</b> times.</p>
+  `;
+
+  statsBox.style.position = "absolute";
+  statsBox.style.top = "50%";
+  statsBox.style.left = "50%";
+  statsBox.style.transform = "translate(-50%, -50%)";
+  statsBox.style.color = "white";
+  statsBox.style.textAlign = "center";
+  statsBox.style.maxWidth = "90%";
+  statsBox.style.zIndex = "9999";
+
+  document.body.appendChild(statsBox);
 }
 
 // ---------------------------
 // Button logic
 // ---------------------------
-function handleChoice(responseList) {
+function choose(responseList, type) {
+  rounds++;
+
+  if (type === "press") pressed++;
+  else notPressed++;
+
   hideGame();
   showMessage(pick(responseList));
 
-  // 3.5-second wait → then new round
-  setTimeout(resetGame, 3500);
+  // After 10 rounds → show stats instead of next round
+  if (rounds >= 10) {
+    setTimeout(showStats, 3500);
+  } else {
+    setTimeout(resetGame, 3500);
+  }
 }
 
 redBtn.addEventListener("click", () => {
-  handleChoice(redResponses);
+  choose(redResponses, "press");
 });
 
 noBtn.addEventListener("click", () => {
-  handleChoice(noResponses);
+  choose(noResponses, "no");
 });
