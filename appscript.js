@@ -1,41 +1,73 @@
-const roundsTotal = 10;
-let currentRound = 0;
-let pressedCount = 0;
-let notPressedCount = 0;
+// =========================
+// CONFIG
+// =========================
+const roundDelay = 1000; // time message stays visible
+const fadeSpeed = 300;   // milliseconds per fade
 
-const goodThings = [
-  "You get $1,000 instantly!",
-  "You can fly for 10 seconds every day!",
-  "You get unlimited pizza!",
-  "You never have homework again!",
-  "You become TikTok famous!",
-  "You wake up with perfect hair!",
-  "You ace every exam without studying!",
-  "You get a free puppy!",
-  "You can speak every language!",
-  "You get a new gaming PC!"
-];
-
-const badThings = [
-  "But you must shout in public.",
-  "But you smell like onions for 1 hour.",
-  "But you lose your phone for a day.",
-  "But you have to eat a spoonful of mustard.",
-  "But you can only talk in whispers.",
-  "But you must wear socks on your hands.",
-  "But you get jumpscared once.",
-  "But you must run 1 lap around your house.",
-  "But you hiccup for 5 minutes.",
-  "But you sneeze 20 times."
-];
-
+// =========================
+// ELEMENTS
+// =========================
 const titleText = document.getElementById("titleText");
 const goodText = document.getElementById("goodText");
 const badText = document.getElementById("badText");
 const redBtn = document.getElementById("redBtn");
 const noBtn = document.getElementById("noBtn");
 
+// =========================
+// DATA
+// =========================
+let currentRound = 1;
+let pressedCount = 0;
+let notPressedCount = 0;
+
+const rounds = [
+  { good: "You get $1,000 instantly!", bad: "You must shout in public." },
+  { good: "Free pizza for life!", bad: "You can never eat burgers again." },
+  { good: "Unlimited WiFi anywhere.", bad: "Battery always stuck at 10%." },
+  { good: "You gain super strength.", bad: "You lose 1 hour of sleep daily." },
+  { good: "Instantly finish all homework.", bad: "Teacher gives a random quiz." },
+  { good: "You become a genius.", bad: "Everyone thinks you’re weird." },
+  { good: "You get a new phone.", bad: "Your old one explodes." },
+  { good: "You can fly!", bad: "Only 1 meter above the ground." },
+  { good: "Become famous.", bad: "Paparazzi follow you everywhere." },
+  { good: "Unlimited games.", bad: "No save files allowed." }
+];
+
+// =========================
+// UTIL: Fade
+// =========================
+function fadeOut(element) {
+  return new Promise(resolve => {
+    element.style.transition = `opacity ${fadeSpeed}ms`;
+    element.style.opacity = 0;
+    setTimeout(resolve, fadeSpeed);
+  });
+}
+
+function fadeIn(element) {
+  return new Promise(resolve => {
+    element.style.transition = `opacity ${fadeSpeed}ms`;
+    element.style.opacity = 1;
+    setTimeout(resolve, fadeSpeed);
+  });
+}
+
+// =========================
+// HIDE & SHOW GAME
+// =========================
 function hideGame() {
+  // Center title
+  document.body.style.display = "flex";
+  document.body.style.flexDirection = "column";
+  document.body.style.justifyContent = "center";
+  document.body.style.alignItems = "center";
+
+  titleText.style.position = "fixed";
+  titleText.style.top = "50%";
+  titleText.style.left = "50%";
+  titleText.style.transform = "translate(-50%, -50%)";
+  titleText.style.textAlign = "center";
+
   goodText.style.display = "none";
   badText.style.display = "none";
   redBtn.style.display = "none";
@@ -43,91 +75,114 @@ function hideGame() {
 }
 
 function showGame() {
+  document.body.style.display = "";
+  document.body.style.flexDirection = "";
+  document.body.style.justifyContent = "";
+  document.body.style.alignItems = "";
+
+  titleText.style.position = "";
+  titleText.style.top = "";
+  titleText.style.left = "";
+  titleText.style.transform = "";
+  titleText.style.textAlign = "";
+
   goodText.style.display = "block";
   badText.style.display = "block";
   redBtn.style.display = "block";
   noBtn.style.display = "block";
 }
 
+// =========================
+// RANDOM MESSAGE
+// =========================
 function randomMessage(pressed) {
-  const pressedMsgs = [
+  const yes = [
     "I would have pressed it too!",
-    "Brave choice!",
-    "Nice one!",
-    "Solid decision!",
-    "Fair enough!"
+    "Bold choice! I like it.",
+    "You made the right call!"
   ];
-
-  const notPressedMsgs = [
-    "Honestly, same.",
-    "Probably the safe choice!",
-    "I get why you didn’t.",
-    "Reasonable decision!",
-    "Maybe next time!"
+  const no = [
+    "Fair choice, honestly.",
+    "I get why you avoided it.",
+    "Probably the smart move!"
   ];
-
   return pressed
-    ? pressedMsgs[Math.floor(Math.random() * pressedMsgs.length)]
-    : notPressedMsgs[Math.floor(Math.random() * notPressedMsgs.length)];
+    ? yes[Math.floor(Math.random() * yes.length)]
+    : no[Math.floor(Math.random() * no.length)];
 }
 
-function nextRound() {
-  if (currentRound >= roundsTotal) {
+// =========================
+// ROUND CONTROL
+// =========================
+function loadRound() {
+  const data = rounds[currentRound - 1];
+  goodText.textContent = data.good;
+  badText.textContent = "But" + data.bad;
+  titleText.textContent = "Would You Press The Button?";
+}
+
+async function nextRound() {
+  currentRound++;
+
+  if (currentRound > 10) {
     showEndScreen();
     return;
   }
 
-  currentRound++;
-
-  const i = Math.floor(Math.random() * goodThings.length);
-  goodText.textContent = "Good thing: " + goodThings[i];
-  badText.textContent = "Bad thing: " + badThings[i];
-
   showGame();
-  titleText.textContent = "Would You Press The Button?";
+  await fadeIn(document.body);
+  loadRound();
 }
 
-function showEndScreen() {
+// =========================
+// END SCREEN
+// =========================
+async function showEndScreen() {
   hideGame();
+  await fadeOut(document.body);
 
   titleText.innerHTML =
     `You pressed the button <b>${pressedCount}</b> times.<br>` +
-    `You didn't press the button <b>${notPressedCount}</b> times.<br><br>`;
+    `You didn't press the button <b>${notPressedCount}</b> times.<br><br>` +
+    `<button id="playAgainBtn">Play Again</button>`;
 
-  const playAgainBtn = document.createElement("button");
-  playAgainBtn.textContent = "Play Again";
-  playAgainBtn.style.fontSize = "22px";
-  playAgainBtn.style.padding = "12px 20px";
-  playAgainBtn.style.marginTop = "20px";
-  playAgainBtn.style.cursor = "pointer";
+  await fadeIn(document.body);
 
-  playAgainBtn.onclick = resetGame;
-
-  titleText.appendChild(playAgainBtn);
+  document.getElementById("playAgainBtn").onclick = resetGame;
 }
 
-function resetGame() {
-  currentRound = 0;
+async function resetGame() {
+  currentRound = 1;
   pressedCount = 0;
   notPressedCount = 0;
 
-  nextRound();
+  await fadeOut(document.body);
+  showGame();
+  loadRound();
+  await fadeIn(document.body);
 }
 
-redBtn.onclick = () => {
+// =========================
+// BUTTON EVENTS
+// =========================
+redBtn.onclick = async () => {
   pressedCount++;
+  await fadeOut(document.body);
   hideGame();
   titleText.textContent = randomMessage(true);
-
-  setTimeout(nextRound, 1000);
+  await fadeIn(document.body);
+  setTimeout(nextRound, roundDelay);
 };
 
-noBtn.onclick = () => {
+noBtn.onclick = async () => {
   notPressedCount++;
+  await fadeOut(document.body);
   hideGame();
   titleText.textContent = randomMessage(false);
-
-  setTimeout(nextRound, 1000);
+  await fadeIn(document.body);
+  setTimeout(nextRound, roundDelay);
 };
 
-nextRound();
+// Start the first round
+loadRound();
+document.body.style.opacity = 1;
