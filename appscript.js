@@ -27,13 +27,12 @@ const noResponses = [
   "I probably would've pressed it."
 ];
 
-// Helper: pick random
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
 // ---------------------------
-// Grab elements
+// Elements
 // ---------------------------
 const titleText = document.getElementById("titleText");
 const goodText = document.getElementById("goodText");
@@ -41,13 +40,8 @@ const badText = document.getElementById("badText");
 const redBtn = document.getElementById("redBtn");
 const noBtn = document.getElementById("noBtn");
 
-// Safety check
-if (!titleText || !goodText || !badText || !redBtn || !noBtn) {
-  console.error("❌ One or more required IDs are missing from the HTML.");
-}
-
 // ---------------------------
-// Hide all main elements
+// Hide UI
 // ---------------------------
 function hideGame() {
   titleText.style.display = "none";
@@ -58,8 +52,10 @@ function hideGame() {
 }
 
 // ---------------------------
-// Show response in center
+// Show center message
 // ---------------------------
+let currentMessageBox = null;
+
 function showMessage(msg) {
   const box = document.createElement("div");
   box.textContent = msg;
@@ -75,21 +71,46 @@ function showMessage(msg) {
   box.style.maxWidth = "80%";
 
   document.body.appendChild(box);
+  currentMessageBox = box;
 }
 
 // ---------------------------
-// Button click events
+// Reset UI for next round
 // ---------------------------
-redBtn.addEventListener("click", () => {
-  // Update text for the next round (even though it hides after)
+function resetGame() {
+  // Remove old message
+  if (currentMessageBox) {
+    currentMessageBox.remove();
+    currentMessageBox = null;
+  }
+
+  // Pick NEW good/bad for the next round
   goodText.textContent = "Good thing: " + pick(goodThings);
   badText.textContent = "Bad thing: " + pick(badThings);
 
+  // Reveal UI again
+  titleText.style.display = "block";
+  goodText.style.display = "block";
+  badText.style.display = "block";
+  redBtn.style.display = "block";
+  noBtn.style.display = "block";
+}
+
+// ---------------------------
+// Button logic
+// ---------------------------
+function handleChoice(responseList) {
   hideGame();
-  showMessage(pick(redResponses));
+  showMessage(pick(responseList));
+
+  // 3.5-second wait → then new round
+  setTimeout(resetGame, 3500);
+}
+
+redBtn.addEventListener("click", () => {
+  handleChoice(redResponses);
 });
 
 noBtn.addEventListener("click", () => {
-  hideGame();
-  showMessage(pick(noResponses));
+  handleChoice(noResponses);
 });
