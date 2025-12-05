@@ -1,9 +1,9 @@
 // =========================
 // CONFIG
 // =========================
-const totalRounds = 10;
-const messageDelay = 1000; // 1 second
-const fadeDuration = 300;  // fade speed in ms
+const totalRounds = 10;       // Total rounds per game
+const messageDelay = 1000;    // Delay in ms
+const fadeDuration = 300;     // Fade duration in ms
 
 // =========================
 // ELEMENTS
@@ -14,6 +14,8 @@ const badText = document.getElementById("badText");
 const redBtn = document.getElementById("redBtn");
 const noBtn = document.getElementById("noBtn");
 
+const gameElements = [titleText, goodText, badText, redBtn, noBtn];
+
 // =========================
 // GAME DATA
 // =========================
@@ -21,126 +23,119 @@ let currentRound = 1;
 let pressedCount = 0;
 let notPressedCount = 0;
 
-const rounds = [
-  { good: "You get $1,000 instantly!", bad: "You must shout in public." },
-  { good: "Free pizza for life!", bad: "You can never eat burgers again." },
-  { good: "Unlimited WiFi anywhere.", bad: "Battery always stuck at 10%." },
-  { good: "You gain super strength.", bad: "You lose 1 hour of sleep daily." },
-  { good: "Instantly finish all homework.", bad: "Teacher gives a random quiz." },
-  { good: "You become a genius.", bad: "Everyone thinks you’re weird." },
-  { good: "You get a new phone.", bad: "Your old one explodes." },
-  { good: "You can fly!", bad: "Only 1 meter above the ground." },
-  { good: "Become famous.", bad: "Paparazzi follow you everywhere." },
-  { good: "Unlimited games.", bad: "No save files allowed." }
+// Question pool
+const questions = [
+  {
+    good: "You get $1,000 instantly!",
+    bad: "You must shout in public.",
+    yes: "Can I have a bit of that money?",
+    no: "Come on, shouting in public isn’t even that bad."
+  },
+  {
+    good: "Free pizza for life!",
+    bad: "You can never eat burgers again.",
+    yes: "Mmm pizza! I would press it too.",
+    no: "Skipping pizza for burgers? Interesting choice."
+  },
+  {
+    good: "Unlimited WiFi anywhere.",
+    bad: "Battery always stuck at 10%.",
+    yes: "Unlimited WiFi? Count me in!",
+    no: "10% battery all the time? Smart move."
+  },
+  // ... add all 50+ questions here
 ];
 
-const yesResponses = [
-  "I would have pressed that too!",
-  "Bold choice! I like it.",
-  "You made the right call!"
-];
+// Shuffle pool helper
+let questionPool = [];
 
-const noResponses = [
-  "Fair choice, honestly.",
-  "I get why you avoided it.",
-  "Probably the smart move!"
-];
+function shuffleArray(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+// Get next random question
+function getNextQuestion() {
+  if (questionPool.length === 0) {
+    // Refill pool if empty
+    questionPool = shuffleArray([...questions]);
+  }
+  return questionPool.pop();
+}
+
+let currentQuestion = getNextQuestion();
 
 // =========================
 // FADE FUNCTIONS
 // =========================
-function fadeOut(el) {
+function fadeOutElements(elements) {
   return new Promise(resolve => {
-    el.style.transition = `opacity ${fadeDuration}ms`;
-    el.style.opacity = 0;
+    elements.forEach(el => el.style.transition = `opacity ${fadeDuration}ms`);
+    elements.forEach(el => el.style.opacity = 0);
     setTimeout(resolve, fadeDuration);
   });
 }
 
-function fadeIn(el) {
+function fadeInElements(elements) {
   return new Promise(resolve => {
-    el.style.transition = `opacity ${fadeDuration}ms`;
-    el.style.opacity = 1;
+    elements.forEach(el => el.style.transition = `opacity ${fadeDuration}ms`);
+    elements.forEach(el => el.style.opacity = 1);
     setTimeout(resolve, fadeDuration);
   });
 }
 
 // =========================
-// SHOW/HIDE GAME
+// POSITION HELPERS
 // =========================
-function hideGame() {
-  goodText.style.visibility = "hidden";
-  badText.style.visibility = "hidden";
-  redBtn.style.visibility = "hidden";
-  noBtn.style.visibility = "hidden";
+function centerMessage() {
+  titleText.style.position = "fixed";
+  titleText.style.top = "50%";
+  titleText.style.left = "50%";
+  titleText.style.transform = "translate(-50%, -50%)";
+  titleText.style.textAlign = "center";
+  titleText.style.width = "80%";
 }
 
-function showGame() {
-  goodText.style.visibility = "visible";
-  badText.style.visibility = "visible";
-  redBtn.style.visibility = "visible";
-  noBtn.style.visibility = "visible";
-  titleText.textContent = "Would You Press The Button?";
+function resetTitlePosition() {
+  titleText.style.position = "";
+  titleText.style.top = "";
+  titleText.style.left = "";
+  titleText.style.transform = "";
+  titleText.style.textAlign = "";
+  titleText.style.width = "";
 }
 
 // =========================
 // ROUND CONTROL
 // =========================
 function loadRound() {
-  const data = rounds[currentRound - 1];
-  goodText.textContent = "Good thing: " + data.good;
-  badText.textContent = "Bad thing: " + data.bad;
+  currentQuestion = getNextQuestion();
+  goodText.textContent = "Good thing: " + currentQuestion.good;
+  badText.textContent = "Bad thing: " + currentQuestion.bad;
+  titleText.textContent = "Would You Press The Button?";
 }
 
 // =========================
-// BUTTON RESPONSES
+// BUTTON HANDLER
 // =========================
 async function handlePress(pressed) {
-  // Count
   if (pressed) pressedCount++;
   else notPressedCount++;
 
-  // Hide game
-  await fadeOut(goodText);
-  await fadeOut(badText);
-  await fadeOut(redBtn);
-  await fadeOut(noBtn);
+  await fadeOutElements(gameElements);
 
-  hideGame();
+  // Show custom message
+  centerMessage();
+  titleText.textContent = pressed ? currentQuestion.yes : currentQuestion.no;
+  await fadeInElements([titleText]);
 
-  // Show custom response centered
-  const message = pressed
-    ? yesResponses[Math.floor(Math.random() * yesResponses.length)]
-    : noResponses[Math.floor(Math.random() * noResponses.length)];
-
-  titleText.style.position = "absolute";
-  titleText.style.top = "50%";
-  titleText.style.left = "50%";
-  titleText.style.transform = "translate(-50%, -50%)";
-  titleText.style.textAlign = "center";
-  titleText.textContent = message;
-
-  await fadeIn(titleText);
-
-  // Next round after delay
   setTimeout(async () => {
     currentRound++;
     if (currentRound > totalRounds) {
       showEndScreen();
     } else {
-      // Reset title
-      titleText.style.position = "";
-      titleText.style.top = "";
-      titleText.style.left = "";
-      titleText.style.transform = "";
-      titleText.style.textAlign = "";
-
-      showGame();
+      resetTitlePosition();
+      await fadeInElements(gameElements);
       loadRound();
-      await fadeIn(goodText);
-      await fadeIn(badText);
-      await fadeIn(redBtn);
-      await fadeIn(noBtn);
     }
   }, messageDelay);
 }
@@ -149,21 +144,13 @@ async function handlePress(pressed) {
 // END SCREEN
 // =========================
 async function showEndScreen() {
-  hideGame();
-  await fadeOut(titleText);
-
-  titleText.style.position = "absolute";
-  titleText.style.top = "50%";
-  titleText.style.left = "50%";
-  titleText.style.transform = "translate(-50%, -50%)";
-  titleText.style.textAlign = "center";
-
+  await fadeOutElements(gameElements);
+  centerMessage();
   titleText.innerHTML =
     `You pressed the button <b>${pressedCount}</b> times.<br>` +
     `You didn't press the button <b>${notPressedCount}</b> times.<br><br>` +
     `<button id="playAgainBtn">Play Again</button>`;
-
-  await fadeIn(titleText);
+  await fadeInElements([titleText]);
 
   document.getElementById("playAgainBtn").onclick = resetGame;
 }
@@ -175,19 +162,9 @@ async function resetGame() {
   currentRound = 1;
   pressedCount = 0;
   notPressedCount = 0;
-
-  titleText.style.position = "";
-  titleText.style.top = "";
-  titleText.style.left = "";
-  titleText.style.transform = "";
-  titleText.style.textAlign = "center";
-
-  showGame();
+  resetTitlePosition();
+  await fadeInElements(gameElements);
   loadRound();
-  await fadeIn(goodText);
-  await fadeIn(badText);
-  await fadeIn(redBtn);
-  await fadeIn(noBtn);
 }
 
 // =========================
@@ -195,7 +172,5 @@ async function resetGame() {
 // =========================
 redBtn.onclick = () => handlePress(true);
 noBtn.onclick = () => handlePress(false);
-
-// Initialize first round
+gameElements.forEach(el => el.style.opacity = 1);
 loadRound();
-document.body.style.opacity = 1;
