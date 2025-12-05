@@ -29,13 +29,13 @@ let notPressedCount = 0;
 // QUESTIONS (50 editable placeholders)
 // =========================
 const questions = [
-  {good:"1 good", bad:"1 bad", yes:"1 yes", no:"1 no"},
-  {good:"2 good", bad:"2 bad", yes:"2 yes", no:"2 no"},
-  {good:"3 good", bad:"3 bad", yes:"3 yes", no:"3 no"},
-  {good:"4 good", bad:"4 bad", yes:"4 yes", no:"4 no"},
-  {good:"5 good", bad:"5 bad", yes:"5 yes", no:"5 no"},
-  {good:"6 good", bad:"6 bad", yes:"6 yes", no:"6 no"},
-  {good:"7 good", bad:"7 bad", yes:"7 yes", no:"7 no"},
+  {good:"You get $50,000", bad:"your pants set on fire.", yes:"Can I have some money?", no:"Come again next time."},
+  {good:"Someone gives you a huge plot of land and offers to pay 70% of the cost to build your dream house.", bad:"it’s located in the middle of a cemetery.", yes:"Good choice, you can sell it as a haunted house", no:"If you won’t press the button then I will."},
+  {good:"Every time you put your hand in your pocket, you can pull out anything you’d like.", bad:"you lose a finger.", yes:"Pull out money and buy new fingers", no:"Hey, I mean robot fingers sounds pretty cool."},
+  {good:"You save the world.", bad:"no one will ever know.", yes:"Don’t worry buddy, I’ll remember you.", no:"Remind me not to put you in any positions of power."},
+  {good:"You get $1 every time you blink", bad:"every 3 hours you get a sharp pain in your right eye.", yes:"Solution: remove your eye.", no:"I liked that.”},
+  {good:"You can move objects with your mind", bad:"your TV has a line on it that will never disappear even after replacing it.", yes:"I mean, they say VR headsets are trendy nowadays right?", no:"But telekinesis!"},
+  {good:"You replace the protagonist of your favorite piece of fiction", bad:"you forget everything about it", yes:"placeholder", no:"i hate webkit"},
   {good:"8 good", bad:"8 bad", yes:"8 yes", no:"8 no"},
   {good:"9 good", bad:"9 bad", yes:"9 yes", no:"9 no"},
   {good:"10 good", bad:"10 bad", yes:"10 yes", no:"10 no"},
@@ -80,6 +80,7 @@ const questions = [
   {good:"49 good", bad:"49 bad", yes:"49 yes", no:"49 no"},
   {good:"50 good", bad:"50 bad", yes:"50 yes", no:"50 no"},
 ];
+
 
 // =========================
 // RANDOM SELECTION
