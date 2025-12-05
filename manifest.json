@@ -3,8 +3,8 @@
   "short_name": "Button",
   "start_url": "app.html",
   "display": "standalone",
-  "background_color": "#placehold",
-  "theme_color": "#BDC3C7",
+  "background_color": "#BDC3C7",
+  "theme_color": "#3498DB",
   "icons": [
     {
       "src": "images/android-chrome-192x192.png",
