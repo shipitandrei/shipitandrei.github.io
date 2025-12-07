@@ -1,7 +1,6 @@
 {
   "name": "Would You Press The Button?",
   "short_name": "Button",
-  "description": "Simple Would You Press The Button game made as a web app"
   "start_url": "app.html",
   "display": "standalone",
   "background_color": "#BDC3C7",
