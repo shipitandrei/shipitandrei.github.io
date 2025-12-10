@@ -29,7 +29,7 @@ let notPressedCount = 0;
 // QUESTIONS (50)
 // =========================
 const questions = [
-  {good:"You get $50,000", bad:"your pants set on fire.", yes:"Can I have some money?", no:"Come again next time."},
+  {good:"You get $50,000", bad:"your pants set on fire.", yes:"Can I have some money?", no:"Fireproof pants are expensive."},
   {good:"Someone gives you a huge plot of land and offers to pay 70% of the cost to build your dream house.", bad:"it’s located in the middle of a cemetery.", yes:"Good choice, you can sell it as a haunted house", no:"If you won’t press the button then I will."},
   {good:"Every time you put your hand in your pocket, you can pull out anything you’d like.", bad:"you lose a finger.", yes:"Pull out money and buy new fingers", no:"Hey, I mean robot fingers sounds pretty cool."},
   {good:"You save the world.", bad:"no one will ever know.", yes:"Don’t worry buddy, I’ll remember you.", no:"Remind me not to put you in any positions of power."},
