@@ -6,6 +6,37 @@ const messageDelay = 1000; // 1 second
 const fadeDuration = 300;
 
 // =========================
+// STORAGE MANAGER
+// =========================
+const StorageManager = {
+  STORAGE_KEY: 'buttonGameStats',
+
+  getStats() {
+    const stored = localStorage.getItem(this.STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {
+      totalGamesPlayed: 0,
+      totalPresses: 0,
+      totalNoPresses: 0,
+      lastGameDate: null
+    };
+  },
+
+  updateStats(pressed, noPresses) {
+    const stats = this.getStats();
+    stats.totalGamesPlayed++;
+    stats.totalPresses += pressed;
+    stats.totalNoPresses += noPresses;
+    stats.lastGameDate = new Date().toISOString();
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(stats));
+    return stats;
+  },
+
+  clear() {
+    localStorage.removeItem(this.STORAGE_KEY);
+  }
+};
+
+// =========================
 // ELEMENTS
 // =========================
 const titleText = document.getElementById("titleText");
@@ -15,6 +46,8 @@ const goodText = document.getElementById("goodText");
 const badText = document.getElementById("badText");
 const redBtn = document.getElementById("redBtn");
 const noBtn = document.getElementById("noBtn");
+const progressFill = document.getElementById("progressFill");
+const progressText = document.getElementById("progressText");
 
 const gameElements = [titleText, goodContainer, badContainer, redBtn, noBtn];
 
@@ -138,6 +171,11 @@ function loadRound() {
   goodText.textContent = currentQuestion.good;
   badText.textContent = "But " + currentQuestion.bad;
 
+  // Update progress indicator
+  const progressPercent = (currentRound / totalRounds) * 100;
+  progressFill.style.width = progressPercent + '%';
+  progressText.textContent = `Round ${currentRound}/${totalRounds}`;
+
   goodContainer.style.display = "flex";
   goodContainer.style.alignItems = "center";
   goodContainer.style.justifyContent = "center";
@@ -190,10 +228,21 @@ async function handlePress(pressed) {
 async function showEndScreen() {
   await fadeOutElements(gameElements);
 
+  // Update and retrieve all-time stats
+  const allTimeStats = StorageManager.updateStats(pressedCount, notPressedCount);
+
   titleText.innerHTML =
-    `You pressed the button <b>${pressedCount}</b> times.<br>` +
-    `You didn't press the button <b>${notPressedCount}</b> times.<br><br>` +
-    `<button id="playAgainBtn">Play Again</button>`;
+    `<div style="font-size: 0.9em; line-height: 1.6;">
+      <b>This Game:</b><br>
+      You pressed the button <b>${pressedCount}</b> times.<br>
+      You didn't press the button <b>${notPressedCount}</b> times.<br><br>
+      <b>All-Time Stats:</b><br>
+      Games Played: <b>${allTimeStats.totalGamesPlayed}</b><br>
+      Total Presses: <b>${allTimeStats.totalPresses}</b><br>
+      Total Declines: <b>${allTimeStats.totalNoPresses}</b><br>
+      <br>
+      <button id="playAgainBtn">Play Again</button>
+    </div>`;
 
   titleText.style.position = "absolute";
   titleText.style.top = "46.1%";
@@ -210,6 +259,9 @@ async function showEndScreen() {
 // RESET GAME
 // =========================
 async function resetGame() {
+  // Fade out end screen
+  await fadeOutElements([titleText]);
+
   currentRound = 1;
   pressedCount = 0;
   notPressedCount = 0;
@@ -221,8 +273,12 @@ async function resetGame() {
   titleText.style.transform = "";
   titleText.style.textAlign = "";
 
-  await fadeInElements(gameElements);
+  // Reset progress indicator
+  progressFill.style.width = '10%';
+  progressText.textContent = 'Round 1/10';
+
   loadRound();
+  await fadeInElements(gameElements);
 }
 
 // =========================
