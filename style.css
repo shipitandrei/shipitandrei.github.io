@@ -52,6 +52,20 @@ html, body {
   font-weight: 600;
 }
 
+.keyboard-hint {
+  margin-top: 6px;
+  color: rgba(255,255,255,0.9);
+  font-size: 0.9rem;
+}
+
+kbd {
+  background: rgba(255,255,255,0.12);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-weight: 700;
+  color: white;
+}
+
 /* Heading at the top with padding */
 .top-section h1 {
   margin: 20px 0 0 0;
@@ -103,6 +117,15 @@ html, body {
   cursor: pointer;
   pointer-events: auto;
   margin-bottom: 10px;
+  touch-action: manipulation; /* improve tap responsiveness */
+  -webkit-user-drag: none; /* disable image drag on mobile */
+  user-select: none;
+}
+
+/* Visual feedback for keyboard-triggered button press */
+.red-button.press-anim {
+  transform: scale(0.94);
+  transition: transform 0.12s ease;
 }
 
 /* "I don't press the button" link */
@@ -116,6 +139,12 @@ html, body {
   pointer-events: auto;
 }
 
+.no-button.press-anim {
+  transform: translateY(2px);
+  opacity: 0.85;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
 .fade {
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -123,4 +152,22 @@ html, body {
 
 .fade.show {
   opacity: 1;
+}
+
+/* Simple inline spinner for loading stats */
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0,0,0,0.08);
+  border-top-color: rgba(0,0,0,0.35);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

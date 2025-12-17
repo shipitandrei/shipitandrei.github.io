@@ -32,6 +32,17 @@ The application can be installed as a standalone app on supported platforms:
 3. Progress through 10 rounds of increasingly interesting scenarios
 4. Track your choices throughout the game
 
+## What's New / Recent Changes
+
+- **Progress indicator**: A visual progress bar and round counter so you always know which round you're on.
+- **Keyboard controls**: Press **Y** for Yes (press the button) and **N** for No (don't press the button). Enter/Space restarts the game on the end screen.
+- **Consistent feedback**: Visual press animations now work reliably for keyboard, touch, and mouse input.
+- **Haptic feedback**: Short vibration on supported devices for a more tactile experience.
+- **Persistent stats**: All-time stats are saved to `localStorage` and shown on the end screen.
+- **Faster end screen rendering**: The end screen now appears immediately with a loading indicator while stats are computed to avoid UI stalls on slower devices.
+- **No duplicate questions**: Questions are tracked per-game to prevent repeats during a single playthrough.
+- **PWA fixes**: Manifest and icons corrected; service worker caching improved for better offline reliability.
+
 ## Technology Stack
 
 | Technology | Purpose |

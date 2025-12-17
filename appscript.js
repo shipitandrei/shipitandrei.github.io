@@ -57,10 +57,13 @@ const gameElements = [titleText, goodContainer, badContainer, redBtn, noBtn];
 let currentRound = 1;
 let pressedCount = 0;
 let notPressedCount = 0;
+let isGameActive = true; // whether player input is allowed
+let isProcessing = false; // prevent double actions while animating
 
 // =========================
 // QUESTIONS (50)
 // =========================
+// I BROKE SOMETHING OH NO #
 const questions = [
   {good:"You get $50,000", bad:"your pants set on fire.", yes:"Can I have some money?", no:"Fireproof pants are expensive."},
   {good:"Someone gives you a huge plot of land and offers to pay 70% of the cost to build your dream house.", bad:"it’s located in the middle of a cemetery.", yes:"Good choice, you can sell it as a haunted house", no:"If you won’t press the button then I will."},
@@ -121,6 +124,8 @@ const questions = [
 // RANDOM SELECTION
 // =========================
 let questionPool = shuffleArray([...questions]);
+// Track questions shown in the current game to avoid repeats
+let currentGameSeen = new Set();
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -131,8 +136,37 @@ function shuffleArray(array) {
 }
 
 function getNextQuestion() {
-  if (questionPool.length === 0) questionPool = shuffleArray([...questions]);
-  return questionPool.pop();
+  // Pop until we find a question not shown in this game yet
+  while (questionPool.length > 0) {
+    const q = questionPool.pop();
+    const key = (q.good || '') + '|' + (q.bad || '');
+    if (!currentGameSeen.has(key)) {
+      currentGameSeen.add(key);
+      return q;
+    }
+    // otherwise skip duplicates for this game and continue
+  }
+
+  // If we ran out of unseen questions (unlikely with large question pool),
+  // rebuild pool with questions that haven't been seen yet. If none remain,
+  // allow repeats by refilling the pool with all questions.
+  const remaining = questions.filter(q => {
+    const key = (q.good || '') + '|' + (q.bad || '');
+    return !currentGameSeen.has(key);
+  });
+  if (remaining.length > 0) {
+    questionPool = shuffleArray(remaining);
+  } else {
+    questionPool = shuffleArray([...questions]);
+    // clear seen to allow repeats only when we've exhausted all unique questions
+    currentGameSeen.clear();
+  }
+
+  // After refill, pop the next question (if any)
+  if (questionPool.length === 0) return null;
+  const q2 = questionPool.pop();
+  currentGameSeen.add((q2.good || '') + '|' + (q2.bad || ''));
+  return q2;
 }
 
 // =========================
@@ -196,6 +230,10 @@ function loadRound() {
 // BUTTON HANDLER
 // =========================
 async function handlePress(pressed) {
+  if (!isGameActive || isProcessing) return;
+  isProcessing = true;
+  // Ensure visual feedback even if the input source didn't trigger pointerdown
+  simulateButtonPress(pressed ? redBtn : noBtn);
   if (pressed) pressedCount++;
   else notPressedCount++;
 
@@ -213,11 +251,13 @@ async function handlePress(pressed) {
   setTimeout(async () => {
     currentRound++;
     if (currentRound > totalRounds) {
-      showEndScreen();
+      await showEndScreen();
+      isProcessing = false;
     } else {
       await fadeOutElements([titleText]);
       await fadeInElements(gameElements);
       loadRound();
+      isProcessing = false;
     }
   }, messageDelay);
 }
@@ -226,22 +266,13 @@ async function handlePress(pressed) {
 // END SCREEN
 // =========================
 async function showEndScreen() {
-  await fadeOutElements(gameElements);
-
-  // Update and retrieve all-time stats
-  const allTimeStats = StorageManager.updateStats(pressedCount, notPressedCount);
-
+  // Mark game as inactive to ignore keyboard input
+  isGameActive = false;
+  await fadeOutElements([goodContainer, badContainer, redBtn, noBtn]);
+  // Show a quick loading state for immediate feedback, then calculate stats
   titleText.innerHTML =
-    `<div style="font-size: 0.9em; line-height: 1.6;">
-      <b>This Game:</b><br>
-      You pressed the button <b>${pressedCount}</b> times.<br>
-      You didn't press the button <b>${notPressedCount}</b> times.<br><br>
-      <b>All-Time Stats:</b><br>
-      Games Played: <b>${allTimeStats.totalGamesPlayed}</b><br>
-      Total Presses: <b>${allTimeStats.totalPresses}</b><br>
-      Total Declines: <b>${allTimeStats.totalNoPresses}</b><br>
-      <br>
-      <button id="playAgainBtn">Play Again</button>
+    `<div style="font-size: 0.95em; line-height: 1.6;">
+      <div>Calculating results<span class="spinner" aria-hidden="true"></span></div>
     </div>`;
 
   titleText.style.position = "absolute";
@@ -252,7 +283,25 @@ async function showEndScreen() {
 
   await fadeInElements([titleText]);
 
-  document.getElementById("playAgainBtn").onclick = resetGame;
+  // Defer the potentially expensive stats update to allow the UI to paint
+  setTimeout(() => {
+    const allTimeStats = StorageManager.updateStats(pressedCount, notPressedCount);
+
+    titleText.innerHTML =
+      `<div style="font-size: 0.9em; line-height: 1.6;">
+        <b>This Game:</b><br>
+        You pressed the button <b>${pressedCount}</b> times.<br>
+        You didn't press the button <b>${notPressedCount}</b> times.<br><br>
+        <b>All-Time Stats:</b><br>
+        Games Played: <b>${allTimeStats.totalGamesPlayed}</b><br>
+        Total Presses: <b>${allTimeStats.totalPresses}</b><br>
+        Total Declines: <b>${allTimeStats.totalNoPresses}</b><br>
+        <br>
+        <button id="playAgainBtn">Play Again</button>
+      </div>`;
+
+    document.getElementById("playAgainBtn").onclick = resetGame;
+  }, 10);
 }
 
 // =========================
@@ -266,6 +315,7 @@ async function resetGame() {
   pressedCount = 0;
   notPressedCount = 0;
   questionPool = shuffleArray([...questions]);
+  currentGameSeen.clear();
 
   titleText.style.position = "";
   titleText.style.top = "";
@@ -279,13 +329,23 @@ async function resetGame() {
 
   loadRound();
   await fadeInElements(gameElements);
+  // Re-enable keyboard input
+  isGameActive = true;
 }
 
 // =========================
 // INITIALIZE
 // =========================
-redBtn.onclick = () => handlePress(true);
-noBtn.onclick = () => handlePress(false);
+// Pointer events for visual feedback and click handlers
+if (redBtn) {
+  redBtn.addEventListener('pointerdown', () => triggerFeedback(redBtn));
+  redBtn.addEventListener('click', () => handlePress(true));
+}
+
+if (noBtn) {
+  noBtn.addEventListener('pointerdown', () => triggerFeedback(noBtn));
+  noBtn.addEventListener('click', () => handlePress(false));
+}
 
 // Ensure visible
 gameElements.forEach(el => {
@@ -294,3 +354,94 @@ gameElements.forEach(el => {
 });
 
 loadRound();
+
+// =========================
+// KEYBOARD SUPPORT (y/n)
+// =========================
+function simulateButtonPress(buttonEl) {
+  if (!buttonEl) return;
+  // Use Web Animations API when available for reliable short press animation
+  if (typeof buttonEl.animate === 'function') {
+    // Cancel any running press animation
+    if (buttonEl._pressAnim) {
+      try { buttonEl._pressAnim.cancel(); } catch (e) {}
+    }
+    const anim = buttonEl.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(0.94)' },
+      { transform: 'scale(1)' }
+    ], { duration: 180, easing: 'ease-out' });
+    buttonEl._pressAnim = anim;
+    anim.onfinish = () => { buttonEl._pressAnim = null; };
+  } else {
+    // Fallback to class toggle
+    buttonEl.classList.add('press-anim');
+    setTimeout(() => buttonEl.classList.remove('press-anim'), 150);
+  }
+}
+
+
+
+// Vibration/haptic helper (no-op if unsupported)
+function vibrateIfAvailable(pattern = 20) {
+  try {
+    if (navigator && typeof navigator.vibrate === 'function') {
+      navigator.vibrate(pattern);
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+// Trigger both visual and haptic feedback
+function triggerFeedback(buttonEl) {
+  simulateButtonPress(buttonEl);
+  vibrateIfAvailable(20);
+}
+
+function handleKeyDown(e) {
+  // ignore if typing in an input/textarea
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  const key = (e.key || '').toLowerCase();
+
+  // If end screen is visible, allow Enter/Space to restart the game
+  if (!isGameActive) {
+    if (key === 'enter' || key === ' ' || key === 'spacebar' || e.code === 'Space') {
+      const playBtn = document.getElementById('playAgainBtn');
+      if (playBtn) {
+        // provide visual feedback on the button before clicking
+        simulateButtonPress(playBtn);
+        setTimeout(() => playBtn.click(), 80);
+      }
+    }
+    return;
+  }
+
+  if (isProcessing) return;
+
+  if (key === 'y') {
+    triggerFeedback(redBtn);
+    handlePress(true);
+  } else if (key === 'n') {
+    triggerFeedback(noBtn);
+    handlePress(false);
+  }
+}
+
+window.addEventListener('keydown', handleKeyDown);
+
+// Hide the keyboard hint on mobile devices (or touch devices with small screens)
+(function hideKeyboardHintOnMobile() {
+  const hint = document.getElementById('keyboardHint');
+  if (!hint) return;
+
+  const uaMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
+  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+  const smallScreen = window.innerWidth <= 800;
+
+  if (uaMobile || (isTouch && smallScreen)) {
+    hint.style.display = 'none';
+  }
+})();
