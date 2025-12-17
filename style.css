@@ -58,6 +58,20 @@ html, body {
   font-size: 0.9rem;
 }
 
+.settings {
+  margin-top: 8px;
+}
+
+.setting-item {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.85rem;
+}
+
+.setting-item input[type="checkbox"] {
+  margin-right: 8px;
+  transform: translateY(-1px);
+}
+
 kbd {
   background: rgba(255,255,255,0.12);
   border-radius: 4px;

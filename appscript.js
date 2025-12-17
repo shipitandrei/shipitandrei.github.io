@@ -355,6 +355,25 @@ gameElements.forEach(el => {
 
 loadRound();
 
+// Haptics toggle initialization (persisted in localStorage)
+(function initHapticsToggle() {
+  const toggle = document.getElementById('hapticsToggle');
+  if (!toggle) return;
+
+  const stored = localStorage.getItem('hapticsEnabled');
+  if (stored === null) {
+    // default to enabled
+    localStorage.setItem('hapticsEnabled', 'true');
+    toggle.checked = true;
+  } else {
+    toggle.checked = stored === 'true';
+  }
+
+  toggle.addEventListener('change', (e) => {
+    localStorage.setItem('hapticsEnabled', e.target.checked ? 'true' : 'false');
+  });
+})();
+
 // =========================
 // KEYBOARD SUPPORT (y/n)
 // =========================
@@ -385,11 +404,66 @@ function simulateButtonPress(buttonEl) {
 // Vibration/haptic helper (no-op if unsupported)
 function vibrateIfAvailable(pattern = 20) {
   try {
+    // Respect user preference stored in localStorage
+    const pref = localStorage.getItem('hapticsEnabled');
+    if (pref === 'false') return;
+
+    // If the Vibration API is available, use it
     if (navigator && typeof navigator.vibrate === 'function') {
       navigator.vibrate(pattern);
+      return;
     }
+
+    // Fallback: Play a short, quiet audio 'tap' to mimic haptics (useful on iOS/Safari)
+    // pattern may be a number or an array; pick the first duration
+    const dur = Array.isArray(pattern) ? (pattern[0] || 20) : pattern;
+    playHapticAudio(dur);
   } catch (e) {
     // ignore
+  }
+}
+
+// Audio fallback for devices that don't support vibration (e.g., some iOS Safari builds)
+function playHapticAudio(durationMs = 20) {
+  try {
+    const C = window.AudioContext || window.webkitAudioContext;
+    if (!C) return; // no Web Audio API
+
+    // Lazy-create a shared AudioContext to avoid creating one per tap
+    if (!window._hapticAudioCtx) {
+      window._hapticAudioCtx = new C();
+    }
+    const ctx = window._hapticAudioCtx;
+
+    // Many mobile browsers require the AudioContext to be resumed after a user gesture
+    if (ctx.state === 'suspended') {
+      // resume returns a promise; don't await here to keep things fast
+      ctx.resume().catch(() => {});
+    }
+
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    // Frequency chosen to be short and low so it feels like a soft tap
+    o.frequency.value = 150;
+    g.gain.value = 0.0001;
+
+    o.connect(g);
+    g.connect(ctx.destination);
+
+    const now = ctx.currentTime;
+    // tiny attack to avoid clicks, then quick decay
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.6, now + 0.005);
+    o.start(now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + (durationMs / 1000));
+    // stop slightly after to allow the ramp to complete
+    o.stop(now + (durationMs / 1000) + 0.02);
+    o.onended = () => {
+      try { o.disconnect(); g.disconnect(); } catch (err) {}
+    };
+  } catch (e) {
+    // ignore any audio errors (silently fail-safe)
   }
 }
 
