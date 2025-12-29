@@ -31,9 +31,6 @@
     </div>
     <h1 id="titleText">Would You Press The Button?</h1>
     <p id="keyboardHint" class="keyboard-hint">Press <kbd>Y</kbd> for Yes, <kbd>N</kbd> for No</p>
-    <div class="settings">
-      <label class="setting-item"><input type="checkbox" id="hapticsToggle"> Enable haptics (vibration)</label>
-    </div>
     <div class="good-container">
       <p id="goodText" class="good-thing">If you are seeing this the JavaScript is not loading</p>
     </div>
@@ -49,6 +46,37 @@
     <img id="redBtn" src="images/red-button.png" alt="Big Red Button" class="red-button">
     <button id="noBtn" class="no-button">I don't press the button</button>
   </div>
+
+  <!-- Settings modal -->
+  <div id="settingsModal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="settingsTitle">
+    <div class="modal-content">
+      <h2 id="settingsTitle">Settings</h2>
+      <div class="modal-row">
+        <label class="setting-row"><input type="checkbox" id="hapticsToggle"> Enable haptics (vibration)</label>
+      </div>
+      <div class="modal-row">
+        <label for="celebrationLevel">Celebration intensity: <span id="celebrationValue">60</span></label>
+        <input type="range" id="celebrationLevel" min="0" max="100" value="60">
+      </div>
+      <div class="modal-row">
+        <label for="themeSelect">Theme</label>
+        <select id="themeSelect" aria-label="Select theme">
+          <option value="default">Default</option>
+          <option value="dark">Dark</option>
+      
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button id="closeSettings" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti canvas (overlay used for celebrations) -->
+  <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
+  <!-- Compact settings button (fixed, now bottom-left, with tooltip) -->
+  <button id="settingsBtn" class="settings-btn" aria-label="Open settings" data-tooltip="Settings">⚙️</button>
 
   <script src="appscript.js"></script>
 </body>

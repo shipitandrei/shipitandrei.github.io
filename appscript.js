@@ -195,6 +195,117 @@ function fadeInElements(elements) {
 }
 
 // =========================
+// CONFETTI (lightweight canvas, lazy-init)
+// =========================
+let _confetti = {
+  canvas: null,
+  ctx: null,
+  particles: [],
+  animId: null
+};
+
+function _ensureConfettiCanvas() {
+  if (_confetti.canvas && _confetti.ctx) return true;
+  const canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return false;
+  _confetti.canvas = canvas;
+  _confetti.ctx = canvas.getContext('2d');
+  _resizeConfetti();
+  return true;
+}
+
+function _resizeConfetti() {
+  if (!_confetti.canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+  const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+  _confetti.canvas.width = Math.floor(w * dpr);
+  _confetti.canvas.height = Math.floor(h * dpr);
+  _confetti.canvas.style.width = w + 'px';
+  _confetti.canvas.style.height = h + 'px';
+  if (_confetti.ctx) _confetti.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function _createParticle(x, y) {
+  const colors = ['#ff4757', '#ff6b81', '#ffa502', '#2ed573', '#1e90ff', '#9b59b6'];
+  const size = 6 + Math.random() * 8;
+  return {
+    x: x + (Math.random() - 0.5) * 80,
+    y: y + (Math.random() - 0.5) * 20,
+    vx: (Math.random() - 0.5) * 6,
+    vy: Math.random() * -6 - 2,
+    rot: Math.random() * Math.PI * 2,
+    vr: (Math.random() - 0.5) * 0.2,
+    size: size,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    opacity: 1,
+    // increase TTL so particles persist longer (frames)
+    ttl: 100 + Math.random() * 80
+  };
+}
+
+function _confettiLoop() {
+  const c = _confetti.ctx;
+  const canvas = _confetti.canvas;
+  if (!c || !canvas) return stopConfetti();
+  c.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = _confetti.particles.length - 1; i >= 0; i--) {
+    const p = _confetti.particles[i];
+    p.vy += 0.15; // gravity
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rot += p.vr;
+    p.ttl -= 1;
+    p.opacity = Math.max(0, p.ttl / 100);
+
+    c.save();
+    c.globalAlpha = p.opacity;
+    c.translate(p.x, p.y);
+    c.rotate(p.rot);
+    c.fillStyle = p.color;
+    c.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+    c.restore();
+
+    if (p.y > (canvas.height / (window.devicePixelRatio || 1)) + 50 || p.ttl <= 0) {
+      _confetti.particles.splice(i, 1);
+    }
+  }
+
+  if (_confetti.particles.length > 0) {
+    _confetti.animId = requestAnimationFrame(_confettiLoop);
+  } else {
+    _confetti.animId = null;
+    if (c) c.clearRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+function launchConfetti({ particleCount = 80, originX = window.innerWidth / 2, originY = window.innerHeight / 3, duration = 5000 } = {}) {
+  if (!_ensureConfettiCanvas()) return;
+  _resizeConfetti();
+  for (let i = 0; i < particleCount; i++) {
+    _confetti.particles.push(_createParticle(originX, originY));
+  }
+  if (!_confetti.animId) _confetti.animId = requestAnimationFrame(_confettiLoop);
+
+  // stop adding after duration; particles will naturally die
+  setTimeout(() => {
+    // ensure we stop after a short buffer
+    setTimeout(stopConfetti, 2000);
+  }, duration);
+}
+
+function stopConfetti() {
+  if (_confetti.animId) {
+    cancelAnimationFrame(_confetti.animId);
+    _confetti.animId = null;
+  }
+  _confetti.particles = [];
+  if (_confetti.ctx && _confetti.canvas) _confetti.ctx.clearRect(0, 0, _confetti.canvas.width, _confetti.canvas.height);
+}
+
+window.addEventListener('resize', () => { try { _resizeConfetti(); } catch (e) {} });
+
+// =========================
 // ROUND CONTROL
 // =========================
 let currentQuestion = getNextQuestion();
@@ -283,6 +394,16 @@ async function showEndScreen() {
 
   await fadeInElements([titleText]);
 
+  // Launch confetti for celebration (non-blocking) using user-set intensity
+  try {
+    const storedLevel = parseInt(localStorage.getItem('celebrationLevel') || '60', 10);
+    const level = (isNaN(storedLevel) ? 60 : storedLevel);
+    // Map level (0-100) to particle count and duration
+    const particleCount = Math.max(10, Math.round(30 + (level / 100) * 170)); // 30-200
+    const duration = Math.max(800, Math.round(1000 + (level / 100) * 9000)); // ~1s-10s
+    launchConfetti({ particleCount, duration });
+  } catch (e) {}
+
   // Defer the potentially expensive stats update to allow the UI to paint
   setTimeout(() => {
     const allTimeStats = StorageManager.updateStats(pressedCount, notPressedCount);
@@ -310,6 +431,9 @@ async function showEndScreen() {
 async function resetGame() {
   // Fade out end screen
   await fadeOutElements([titleText]);
+
+  // ensure confetti stops when returning to game
+  try { stopConfetti(); } catch (e) {}
 
   currentRound = 1;
   pressedCount = 0;
@@ -355,24 +479,85 @@ gameElements.forEach(el => {
 
 loadRound();
 
-// Haptics toggle initialization (persisted in localStorage)
-(function initHapticsToggle() {
-  const toggle = document.getElementById('hapticsToggle');
-  if (!toggle) return;
+// Initialize Settings modal and controls
+function initSettings() {
+  const settingsBtn = document.getElementById('settingsBtn');
+  const modal = document.getElementById('settingsModal');
+  const closeBtn = document.getElementById('closeSettings');
+  const hapticsToggle = document.getElementById('hapticsToggle');
+  const celebrationLevel = document.getElementById('celebrationLevel');
+  const celebrationValue = document.getElementById('celebrationValue');
 
-  const stored = localStorage.getItem('hapticsEnabled');
-  if (stored === null) {
-    // default to enabled
-    localStorage.setItem('hapticsEnabled', 'true');
-    toggle.checked = true;
-  } else {
-    toggle.checked = stored === 'true';
+  // Load stored preferences
+  const hapticsStored = localStorage.getItem('hapticsEnabled');
+  if (hapticsToggle) {
+    if (hapticsStored === null) {
+      localStorage.setItem('hapticsEnabled', 'true');
+      hapticsToggle.checked = true;
+    } else {
+      hapticsToggle.checked = hapticsStored === 'true';
+    }
+    hapticsToggle.addEventListener('change', (e) => {
+      localStorage.setItem('hapticsEnabled', e.target.checked ? 'true' : 'false');
+    });
   }
 
-  toggle.addEventListener('change', (e) => {
-    localStorage.setItem('hapticsEnabled', e.target.checked ? 'true' : 'false');
-  });
-})();
+  // Celebration level slider
+  const storedLevel = localStorage.getItem('celebrationLevel');
+  const levelVal = storedLevel === null ? 60 : parseInt(storedLevel, 10) || 60;
+  if (celebrationLevel) {
+    celebrationLevel.value = levelVal;
+    if (celebrationValue) celebrationValue.textContent = celebrationLevel.value;
+    celebrationLevel.addEventListener('input', (e) => {
+      const v = e.target.value;
+      if (celebrationValue) celebrationValue.textContent = v;
+    });
+    celebrationLevel.addEventListener('change', (e) => {
+      localStorage.setItem('celebrationLevel', e.target.value);
+    });
+  }
+
+  // Theme selector
+  const themeSelect = document.getElementById('themeSelect');
+  const storedTheme = localStorage.getItem('theme') || 'default';
+  try {
+    applyTheme(storedTheme);
+    if (themeSelect) themeSelect.value = storedTheme;
+  } catch (e) {}
+  if (themeSelect) {
+    themeSelect.addEventListener('change', (e) => {
+      const t = e.target.value || 'default';
+      localStorage.setItem('theme', t);
+      applyTheme(t);
+    });
+  }
+
+  // Open/close modal
+  if (settingsBtn && modal) {
+    settingsBtn.addEventListener('click', () => {
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+    });
+  }
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+    });
+  }
+  // close modal when clicking outside content
+  if (modal) {
+    modal.addEventListener('click', (ev) => {
+      if (ev.target === modal) {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
+}
+
+// Initialize settings after DOM is ready
+try { initSettings(); } catch (e) { /* ignore */ }
 
 // =========================
 // KEYBOARD SUPPORT (y/n)
@@ -519,3 +704,42 @@ window.addEventListener('keydown', handleKeyDown);
     hint.style.display = 'none';
   }
 })();
+
+// Theme application helper
+function applyTheme(theme) {
+  try {
+    const body = document.body;
+    // Remove known theme classes
+    body.classList.remove('theme-dark', 'theme-colorful', 'theme-retro');
+    if (!theme || theme === 'default') {
+      // default theme: nothing to add
+      return;
+    }
+    // add the selected theme class (expects values like 'dark', 'colorful', 'retro')
+    body.classList.add('theme-' + theme);
+  } catch (e) {
+    // ignore
+  }
+}
+
+// Adjust the good text position when the keyboard hint is visible on wide screens
+function updateGoodTextShift() {
+  try {
+    const hint = document.getElementById('keyboardHint');
+    const gc = document.querySelector('.good-container');
+    if (!hint || !gc) return;
+
+    const computed = window.getComputedStyle(hint);
+    const hintVisible = computed.display !== 'none' && hint.getBoundingClientRect().height > 0 && hint.offsetParent !== null;
+    const wideScreen = window.innerWidth > 800;
+
+    if (hintVisible && wideScreen) gc.classList.add('hint-visible-shift');
+    else gc.classList.remove('hint-visible-shift');
+  } catch (e) {
+    // fail silently
+  }
+}
+
+// Update on resize and run once during initialization
+window.addEventListener('resize', updateGoodTextShift);
+try { updateGoodTextShift(); } catch (e) {}

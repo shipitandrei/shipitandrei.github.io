@@ -6,6 +6,41 @@ html, body {
   position: relative;
 }
 
+/* Ensure default text color follows theme variable */
+body {
+  color: var(--text-default);
+}
+
+/* Theme variables (defaults) */
+:root {
+  --top-bg: #3498db;
+  --bottom-bg: #bdc3c7;
+  --progress-fill: rgba(255, 255, 255, 0.8);
+  --kbd-bg: rgba(255,255,255,0.12);
+  --text-on-primary: #ffffff;
+  --text-default: #111827; /* default body/text color */
+  --modal-bg: #ffffff;
+  --no-button-color: #4aa3ff; /* lighter blue for the "I don't press" link */
+  --settings-btn-bg-start: rgba(255,255,255,0.06);
+  --settings-btn-bg-end: rgba(255,255,255,0.02);
+}
+
+/* Dark theme */
+body.theme-dark {
+  --top-bg: #07080a; /* very very dark gray (near-black) */
+  --bottom-bg: #1a1c1f; /* slightly lighter dark gray for improved separation */
+  --progress-fill: #60a5fa;
+  --kbd-bg: rgba(255,255,255,0.06);
+  --text-on-primary: #ffffff; /* pure white for highest contrast */
+  --settings-btn-bg-start: rgba(255,255,255,0.03);
+  --settings-btn-bg-end: rgba(255,255,255,0.01);
+  --text-default: #ffffff;
+  --modal-bg: #0b0d10; /* dark modal background for dark theme */
+  --no-button-color: #7fbfff; /* slightly brighter in dark mode for legibility */
+}
+
+/* (Removed Colorful and Retro themes — keeping Default and Dark) */
+
 /* Top and bottom sections fill half screen each */
 .top-section, .bottom-section {
   height: 50%;
@@ -15,11 +50,11 @@ html, body {
 }
 
 .top-section {
-  background-color: #3498db; /* blue */
+  background: var(--top-bg);
 }
 
 .bottom-section {
-  background-color: #bdc3c7; /* gray */
+  background: var(--bottom-bg);
 }
 
 /* Progress bar */
@@ -37,7 +72,7 @@ html, body {
 
 .progress-fill {
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--progress-fill);
   width: 10%;
   border-radius: 4px;
   transition: width 0.3s ease;
@@ -48,13 +83,13 @@ html, body {
   top: 18px;
   right: 20px;
   font-size: 0.9rem;
-  color: white;
+  color: var(--text-on-primary);
   font-weight: 600;
 }
 
 .keyboard-hint {
   margin-top: 6px;
-  color: rgba(255,255,255,0.9);
+  color: var(--text-on-primary);
   font-size: 0.9rem;
 }
 
@@ -63,7 +98,7 @@ html, body {
 }
 
 .setting-item {
-  color: rgba(255,255,255,0.85);
+  color: var(--text-on-primary);
   font-size: 0.85rem;
 }
 
@@ -72,12 +107,117 @@ html, body {
   transform: translateY(-1px);
 }
 
+.settings-btn {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-on-primary);
+  padding: 6px;
+  border-radius: 12px; /* rounded pill for modern feel */
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(21, 38, 71, 0.28);
+  z-index: 11000;
+  opacity: 1;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.12s ease;
+  will-change: transform;
+  /* glassy gradient using variables */
+  background: linear-gradient(135deg, var(--settings-btn-bg-start), var(--settings-btn-bg-end));
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(6px) saturate(1.05);
+  min-width: 48px;
+  /* larger emoji/icon */
+  font-size: 22px;
+  line-height: 1;
+}
+
+.settings-btn:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 14px 36px rgba(21, 38, 71, 0.36);
+}
+
+/* subtle periodic pulse to draw attention without being obnoxious */
+.settings-btn.pulse {
+  animation: confettiPulse 4.5s ease-in-out infinite;
+}
+
+@keyframes confettiPulse {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.02); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Tooltip using data-tooltip attr */
+.settings-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(6px);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+}
+
+.settings-btn:hover::after,
+.settings-btn:focus::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 520px) {
+  .settings-btn { left: 10px; bottom: 10px; width: 48px; height: 48px; }
+  .settings-btn::after { display: none; } /* hide tooltip on small screens */
+}
+
+/* Modal for settings */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  z-index: 10000;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.modal.show {
+  visibility: visible;
+  opacity: 1;
+}
+.modal-content {
+  background: var(--modal-bg);
+  color: var(--text-default);
+  padding: 18px;
+  border-radius: 10px;
+  width: 92%;
+  max-width: 420px;
+  box-sizing: border-box;
+}
+.modal-row { margin-top: 10px; }
+.modal-actions { margin-top: 14px; text-align: right; }
+.modal .btn { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; }
+#celebrationLevel { width: 100%; }
+
 kbd {
-  background: rgba(255,255,255,0.12);
+  background: var(--kbd-bg);
   border-radius: 4px;
   padding: 2px 6px;
   font-weight: 700;
-  color: white;
+  color: var(--text-on-primary);
 }
 
 /* Heading at the top with padding */
@@ -99,6 +239,14 @@ kbd {
   padding: 0 20px;
   text-align: center;
   margin-top: -10px; /* move slightly up */
+  transition: transform 0.18s ease; /* smooth shift when toggled */
+}
+
+/* When keyboard hint is visible on wider screens, gently raise the good text to avoid overlap */
+@media (min-width: 801px) {
+  .good-container.hint-visible-shift {
+    transform: translateY(-36px);
+  }
 }
 
 /* Bad thing container vertically centered in gray section */
@@ -146,7 +294,7 @@ kbd {
 .no-button {
   background: none;
   border: none;
-  color: blue;
+  color: var(--no-button-color);
   text-decoration: underline;
   cursor: pointer;
   font-size: 16px;
@@ -184,4 +332,15 @@ kbd {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* Confetti canvas overlay */
+#confettiCanvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
 }

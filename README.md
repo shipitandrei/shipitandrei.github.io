@@ -75,8 +75,12 @@ The Service Worker caches critical resources for offline access, ensuring the ga
 - Chrome/Edge 90+
 - Firefox 88+
 - Safari 14+ (iOS/macOS)
-- Samsung Internet 14+
+- Samsung Internet 14+ (who uses that anyway?????)
 
 ## License
 
 Open source - available on [GitHub](https://github.com/shipitandrei/shipitandrei.github.io)
+
+## Planned Features / TODO
+- **Daily Streaks**: Implement a seeded daily challenge and track consecutive-day streaks in `localStorage`. The user's current streak will be displayed on the end screen. 
+- **Add More Scenarios**: Expand the `questions` dataset or add an import/authoring workflow so new scenarios can be added more easily.
