@@ -63,7 +63,7 @@ let isProcessing = false; // prevent double actions while animating
 // =========================
 // QUESTIONS (50)
 // =========================
-// I BROKE SOMETHING OH NO #
+// I BROKE SOMETHING OH NO 
 const questions = [
   {good:"You get $50,000", bad:"your pants set on fire.", yes:"Can I have some money?", no:"Fireproof pants are expensive."},
   {good:"Someone gives you a huge plot of land and offers to pay 70% of the cost to build your dream house.", bad:"it’s located in the middle of a cemetery.", yes:"Good choice, you can sell it as a haunted house", no:"If you won’t press the button then I will."},
@@ -147,7 +147,7 @@ function getNextQuestion() {
     // otherwise skip duplicates for this game and continue
   }
 
-  // If we ran out of unseen questions (unlikely with large question pool),
+  // If we ran out of unseen questions,
   // rebuild pool with questions that haven't been seen yet. If none remain,
   // allow repeats by refilling the pool with all questions.
   const remaining = questions.filter(q => {
@@ -195,7 +195,7 @@ function fadeInElements(elements) {
 }
 
 // =========================
-// CONFETTI (lightweight canvas, lazy-init)
+// CONFETTI
 // =========================
 let _confetti = {
   canvas: null,
@@ -380,7 +380,7 @@ async function showEndScreen() {
   // Mark game as inactive to ignore keyboard input
   isGameActive = false;
   await fadeOutElements([goodContainer, badContainer, redBtn, noBtn]);
-  // Show a quick loading state for immediate feedback, then calculate stats
+  // Show a quick loading state to keep user happy, then calculate stats
   titleText.innerHTML =
     `<div style="font-size: 0.95em; line-height: 1.6;">
       <div>Calculating results<span class="spinner" aria-hidden="true"></span></div>
