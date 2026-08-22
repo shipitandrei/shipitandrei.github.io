@@ -95,7 +95,7 @@ async function setFlashlight(enabled) {
                 : "Turn flashlight on"
         );
         flashlightButton.textContent =
-            enabled ? "🔦 On" : "🔦";
+            enabled ? "🔦 Light On" : "🔦 Light Off";
 
     } catch (error) {
 
