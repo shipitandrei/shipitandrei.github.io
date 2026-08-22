@@ -159,7 +159,7 @@ button {
 
     min-width: 150px;
 
-    z-index: 100;
+    z-index: 100;    
 }
 
 #captureButton:disabled {
@@ -167,16 +167,14 @@ button {
 }
 
 .flashlight-button {
-    position: absolute;
-    right: 20px;
-    bottom: 70px;
+    bottom: 90px;
+
+    background: white;
+    color: black;
+
+    min-width: 150px;
+
     z-index: 100;
-    min-width: 52px;
-    min-height: 52px;
-    padding: 12px;
-    background: rgba(0, 0, 0, 0.65);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 .flashlight-button[aria-pressed="true"] {
