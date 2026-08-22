@@ -11,6 +11,9 @@ const video =
 const captureButton =
     document.getElementById("captureButton");
 
+const flashlightButton =
+    document.getElementById("flashlightButton");
+
 const canvas =
     document.getElementById("captureCanvas");
 
@@ -41,6 +44,69 @@ const backToCropButton =
    ========================= */
 
 let cameraStream = null;
+let flashlightOn = false;
+
+
+function getCameraTrack() {
+
+    return cameraStream?.getVideoTracks()[0] || null;
+}
+
+
+function setupFlashlight() {
+
+    const track = getCameraTrack();
+    const capabilities =
+        track?.getCapabilities?.() || {};
+
+    if (!capabilities.torch) {
+        flashlightButton.hidden = true;
+        return;
+    }
+
+    flashlightButton.hidden = false;
+    flashlightButton.disabled = false;
+}
+
+
+async function setFlashlight(enabled) {
+
+    const track = getCameraTrack();
+
+    if (!track) {
+        return;
+    }
+
+    try {
+
+        await track.applyConstraints({
+            advanced: [{ torch: enabled }]
+        });
+
+        flashlightOn = enabled;
+        flashlightButton.setAttribute(
+            "aria-pressed",
+            String(enabled)
+        );
+        flashlightButton.setAttribute(
+            "aria-label",
+            enabled
+                ? "Turn flashlight off"
+                : "Turn flashlight on"
+        );
+        flashlightButton.textContent =
+            enabled ? "🔦 On" : "🔦";
+
+    } catch (error) {
+
+        console.error(
+            "Flashlight error:",
+            error
+        );
+
+        flashlightButton.disabled = true;
+    }
+}
 
 
 async function startCamera() {
@@ -68,6 +134,8 @@ async function startCamera() {
         captureButton.style.display =
             "block";
 
+        setupFlashlight();
+
         console.log(
             "Kamera i wok."
         );
@@ -84,6 +152,12 @@ async function startCamera() {
         );
     }
 }
+
+
+flashlightButton.addEventListener(
+    "click",
+    () => setFlashlight(!flashlightOn)
+);
 
 
 /*
@@ -789,6 +863,10 @@ backToCropButton.addEventListener(
 
         ocrStatus.textContent =
             "";
+
+        if (flashlightOn) {
+            setFlashlight(false);
+        }
 
 
         cropCanvas.width =
